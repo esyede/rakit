@@ -342,7 +342,7 @@ only the first `:` separates the rule from its parameter.
 | --- | --- |
 | `email` | a valid email address (`filter_var()`) |
 | `url` | a valid URL |
-| `active_url` | an http(s) URL answering a cURL `HEAD` request with 2xx or 3xx (5 second timeout) |
+| `active_url` | an http(s) URL whose host has a DNS `A` or `AAAA` record (no request is made) |
 | `ip` | a valid IPv4 or IPv6 address |
 | `ipv4` | a valid IPv4 address |
 | `ipv6` | a valid IPv6 address |

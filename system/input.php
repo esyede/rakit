@@ -21,6 +21,13 @@ class Input
     public static $json;
 
     /**
+     * The decoded JSON body, paired with the $json value it was decoded from.
+     *
+     * @var array|null
+     */
+    protected static $decoded;
+
+    /**
      * Get all input data, including files.
      *
      * @return array
@@ -44,9 +51,14 @@ class Input
             return [];
         }
 
-        $json = static::json();
+        // Decode once per body: get() runs this on every call. Anything assigning
+        // $json (replace(), clear(), the worker reset) makes the pair stale.
+        if (is_null(static::$json) || ! is_array(static::$decoded) || static::$decoded[0] !== static::$json) {
+            $json = static::json();
+            static::$decoded = [static::$json, is_array($json) ? $json : []];
+        }
 
-        return is_array($json) ? $json : [];
+        return static::$decoded[1];
     }
 
     /**

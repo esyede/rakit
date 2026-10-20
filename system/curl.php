@@ -358,6 +358,39 @@ class Curl
     }
 
     /**
+     * Get every setting, or put back ones taken earlier. The worker bridge restores
+     * the boot-time settings with it, so one request's auth, cookie or proxy is never
+     * sent on the next request's calls.
+     *
+     * @param array|null $state
+     *
+     * @return array|null
+     */
+    public static function state($state = null)
+    {
+        $keys = [
+            'cookie', 'cookie_file', 'curl_options', 'default_headers', 'json_options',
+            'socket_timeout', 'verify_peer', 'verify_host', 'auth', 'proxy',
+        ];
+
+        if (! is_array($state)) {
+            $state = [];
+
+            foreach ($keys as $key) {
+                $state[$key] = static::$$key;
+            }
+
+            return $state;
+        }
+
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $state)) {
+                static::$$key = $state[$key];
+            }
+        }
+    }
+
+    /**
      * Reset every setting. Call it before switching host, so credentials meant for
      * one endpoint are not sent to another.
      */
@@ -630,7 +663,8 @@ class Curl
             }
         }
 
-        $timeout = is_int(static::$socket_timeout) ? static::$socket_timeout : PHP_INT_MAX;
+        // An unset timeout is 30 seconds: a hung upstream must not hold a worker forever.
+        $timeout = is_int(static::$socket_timeout) ? static::$socket_timeout : 30;
         curl_setopt_array(static::$handler, static::merge_options($defaults, static::$curl_options));
         curl_setopt(static::$handler, CURLOPT_TIMEOUT, $timeout);
 

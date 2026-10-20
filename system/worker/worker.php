@@ -106,6 +106,34 @@ class Worker
             $this->report($e);
             $this->bridge->abort($level);
         }
+
+        $this->terminate($response, $level);
+    }
+
+    /**
+     * Run the after-response work: the deferred session sweep and 'rakit.terminated'.
+     * A failure here is only reported, the response is already out. Output is dropped.
+     *
+     * @param \System\Response $response
+     * @param int              $level
+     */
+    protected function terminate(Response $response, $level)
+    {
+        ob_start();
+
+        try {
+            if (Config::get('session.driver')) {
+                Session::terminate();
+            }
+
+            Hook::fire('rakit.terminated', [$response]);
+        } catch (\Throwable $e) {
+            $this->report($e);
+        } catch (\Exception $e) {
+            $this->report($e);
+        }
+
+        Bridge::discard($level);
     }
 
     /**

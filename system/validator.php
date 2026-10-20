@@ -1302,21 +1302,11 @@ class Validator
             return false;
         }
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-        curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-        curl_setopt($ch, CURLOPT_NOBODY, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Timeout in 5 seconds
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // A DNS lookup, as Laravel does. Requesting the URL let any user make the
+        // server reach internal hosts (169.254.169.254, 10.x) and read the result.
+        $host = parse_url($url, PHP_URL_HOST);
 
-        if (PHP_VERSION_ID < 80000) {
-            /** @disregard */
-            curl_close($ch);
-        }
-
-        return ($code >= 200 && $code < 400);
+        return is_string($host) && '' !== $host && (checkdnsrr($host, 'A') || checkdnsrr($host, 'AAAA'));
     }
 
     /**

@@ -468,6 +468,11 @@ class Str
         $windows = ('\\' === DS);
         $bytes = false;
 
+        // The OS CSPRNG, on PHP 7+.
+        if (function_exists('random_bytes')) {
+            return random_bytes($length);
+        }
+
         // Use openssl.
         $bytes = openssl_random_pseudo_bytes($length, $strong);
 

@@ -115,6 +115,7 @@ For each request the worker:
 2. **Captures** the request from `$_SERVER`, `$_GET`, `$_POST`, `$_COOKIE`, `$_FILES` and the body, and rebuilds `Request::$foundation`.
 3. **Dispatches** it through the normal pipeline (session, routing, middlewares, controller, session save).
 4. **Sends** the response through the adapter and fires `rakit.done`.
+5. **Terminates**: runs the deferred session sweep and fires `rakit.terminated`. A failure there is logged, never sent.
 
 Exceptions never reach the server: they become a 500 response (the debugger page in debug mode, or the `error.500` view plus a log entry in production), so a failing request never kills the worker.
 

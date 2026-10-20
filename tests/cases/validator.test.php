@@ -446,24 +446,19 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testTheActiveUrlRule()
     {
-        // The rule fires a real request, so it runs against the local mock
-        // endpoint: a public host would make the test depend on the network and
-        // on the provider not hijacking unresolvable names with a 200 page.
-        $base = MockServer::url();
-
-        if (null === $base) {
-            $this->markTestSkipped('Mock server is not available.');
+        // The rule only resolves the host (no request is made), so it needs DNS.
+        if (! checkdnsrr('example.com', 'A')) {
+            $this->markTestSkipped('DNS is not available.');
         }
 
         $input = [];
         $rules = ['url' => 'active_url'];
 
-        // 200 from the mock endpoint
-        $input['url'] = $base;
+        $input['url'] = 'https://example.com/no-such-path';
         $this->assertTrue(Validator::make($input, $rules)->valid());
 
-        // 404 from the same server, which is outside the 200-399 range
-        $input['url'] = $base . '/no-such-path';
+        // RFC 6761: ".invalid" never resolves.
+        $input['url'] = 'https://rakit-active-url.invalid';
         $this->assertFalse(Validator::make($input, $rules)->valid());
 
         // Not a URL at all

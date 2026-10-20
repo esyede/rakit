@@ -687,6 +687,12 @@ if (! function_exists('abort')) {
         \System\Hook::fire('rakit.done', [$response]);
         $response->foundation()->finish();
 
+        if (\System\Config::get('session.driver')) {
+            \System\Session::terminate();
+        }
+
+        \System\Hook::fire('rakit.terminated', [$response]);
+
         exit;
     }
 }

@@ -40,9 +40,9 @@ return [
     | If enabled, connections without a valid Origin header will be rejected.
     | This is useful for security, especially in production environments.
     |
-    | Enabled by default. Browsers always send an Origin header, so also list
-    | your site(s) in "allowed_origins" below in production, otherwise any
-    | origin is still accepted. Non-browser clients must send an Origin header.
+    | Enabled by default. Browsers always send an Origin header. With
+    | "allowed_origins" below empty, only pages on the socket's own host are
+    | accepted. Non-browser clients must send an Origin header.
     |
     */
 
@@ -81,7 +81,8 @@ return [
     |
     | List of allowed origins (domains) for WebSocket connections.
     | If origin_required is enabled, only origins in this list are accepted.
-    | Leave empty to allow all origins (not recommended for production).
+    | Leave empty to accept the socket's own host only (any port), e.g. a page
+    | on https://example.com connecting to ws://example.com:9000.
     |
     */
 

@@ -77,6 +77,13 @@ class View implements \ArrayAccess
     public static $rendered = 0;
 
     /**
+     * View paths file() has found during this request.
+     *
+     * @var array
+     */
+    public static $files = [];
+
+    /**
      * Constructor.
      *
      * @param string $view
@@ -220,15 +227,21 @@ class View implements \ArrayAccess
     public static function file($package, $view, $directory)
     {
         $directory = Str::finish($directory, DS);
+        $key = $directory.$view;
+
+        // A partial included in a loop is looked up once. Only hits are kept, and
+        // the worker bridge empties them per request, so new files are still found.
+        if (isset(static::$files[$key])) {
+            return static::$files[$key];
+        }
 
         if (is_file($path = $directory.$view.'.php')) {
-            return $path;
+            return static::$files[$key] = $path;
         }
 
         if (is_file($path = $directory.$view.'.blade.php')) {
-            return $path;
+            return static::$files[$key] = $path;
         }
-
     }
 
     /**

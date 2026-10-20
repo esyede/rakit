@@ -343,6 +343,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $payload->driver->expects($this->once())->method('sweep');
         $payload->save();
+
+        // Deferred until the response is out, and run once.
+        $payload->sweep_expired();
+        $payload->sweep_expired();
     }
 
     /**
@@ -359,6 +363,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $payload->driver->expects($this->never())->method('sweep');
         $payload->save();
+        $payload->sweep_expired();
     }
 
     /**

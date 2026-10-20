@@ -101,8 +101,9 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} (.+)/$
 RewriteRule ^ %1 [L,R=301]
 
-RewriteRule ^(application|cgi-bin|packages|storage|system|vendor)/(.*)?$ / [F,L]
-RewriteRule ^(key\.php|composer\.(lock|json))$ / [F,L]
+RewriteRule (^|/)\.(?!well-known/) - [F,L]
+RewriteRule ^(application|cgi-bin|packages|storage|system|vendor|tests)/(.*)?$ / [F,L]
+RewriteRule ^(key\.php|paths\.php|_ide_helper\.php|rakit|doctum\.phar|repositories\.json|composer\.(lock|json))$ / [F,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -137,11 +138,11 @@ server {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
-    location ~ ^/(application|cgi-bin|packages|storage|system|vendor)/ {
+    location ~ ^/(application|cgi-bin|packages|storage|system|vendor|tests)/ {
         return 403;
     }
 
-    location ~ ^/(key\.php|composer\.(lock|json))$ {
+    location ~ ^/(key\.php|paths\.php|_ide_helper\.php|rakit|doctum\.phar|repositories\.json|composer\.(lock|json))$ {
         return 403;
     }
 

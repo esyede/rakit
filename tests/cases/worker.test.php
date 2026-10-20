@@ -54,6 +54,7 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
             'get' => $_GET,
             'post' => $_POST,
             'cookie' => $_COOKIE,
+            'curl' => \System\Curl::state(),
         ];
 
         FakeBridge::forget();
@@ -95,6 +96,31 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
             return Response::json(Input::json(true));
         });
 
+        Router::register('GET', 'worker-test/curl', function () {
+            $before = \System\Curl::state();
+            \System\Curl::auth('request-user', 'secret');
+            \System\Curl::cookie('request=1');
+            \System\Curl::verify_peer(false);
+
+            return Response::json([
+                'user' => $before['auth']['user'],
+                'cookie' => $before['cookie'],
+                'peer' => $before['verify_peer'],
+                'header' => isset($before['default_headers']['x-boot']) || isset($before['default_headers']['X-Boot']),
+            ]);
+        });
+
+        Router::register('POST', 'worker-test/field', function () {
+            return Input::get('a', '-').'|'.Input::get('a', '-');
+        });
+
+        Router::register('GET', 'worker-test/views', function () {
+            $count = count(\System\View::$files);
+            \System\View::$files['worker-test'] = __FILE__;
+
+            return 'views:'.$count;
+        });
+
         Router::register('GET', 'worker-test/state', function () {
             $leftover = Container::registered('worker-test.request');
             Container::instance('worker-test.request', 'request-only');
@@ -113,11 +139,19 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        foreach (['echo', 'cookie', 'session', 'boom', 'state'] as $uri) {
+        foreach (['echo', 'cookie', 'session', 'boom', 'state', 'curl', 'views'] as $uri) {
             unset(Router::$routes['GET']['worker-test/'.$uri]);
         }
 
-        unset(Router::$routes['POST']['worker-test/json'], Session::$registrar['worker-test']);
+        unset(
+            Router::$routes['POST']['worker-test/json'],
+            Router::$routes['POST']['worker-test/field'],
+            Session::$registrar['worker-test']
+        );
+
+        \System\Curl::state($this->backup['curl']);
+        \System\View::$files = [];
+        \System\Hook::clear('rakit.terminated');
 
         Config::set('application.language', $this->backup['language']);
         Config::set('application.languages', $this->backup['languages']);
@@ -317,6 +351,95 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('worker-env', $second['env']);
         $this->assertTrue($second['boot']);
         $this->assertFalse($second['leftover']);
+    }
+
+    /**
+     * Test that one request's HTTP client settings never reach the next, while the
+     * ones set at boot stay.
+     *
+     * @group system
+     */
+    public function testCurlSettingsAreRestoredForEveryRequest()
+    {
+        \System\Curl::default_header('X-Boot', '1');
+
+        $bridge = $this->serve([
+            ['uri' => '/worker-test/curl'],
+            ['uri' => '/worker-test/curl'],
+        ]);
+
+        $second = json_decode($bridge->sent[1]['body'], true);
+
+        $this->assertSame('', $second['user']);
+        $this->assertEmpty($second['cookie']);
+        $this->assertSame(1, $second['peer']);
+        $this->assertTrue($second['header']);
+    }
+
+    /**
+     * Test that the decoded JSON body belongs to its own request.
+     *
+     * @group system
+     */
+    public function testJsonInputIsDecodedPerRequest()
+    {
+        $json = ['CONTENT_TYPE' => 'application/json'];
+
+        $bridge = $this->serve([
+            ['uri' => '/worker-test/field', 'method' => 'POST', 'server' => $json, 'body' => '{"a":"first"}'],
+            ['uri' => '/worker-test/field', 'method' => 'POST', 'server' => $json, 'body' => '{"a":"second"}'],
+            ['uri' => '/worker-test/field', 'method' => 'POST', 'server' => $json, 'body' => ''],
+        ]);
+
+        $this->assertSame('first|first', $bridge->sent[0]['body']);
+        $this->assertSame('second|second', $bridge->sent[1]['body']);
+        $this->assertSame('-|-', $bridge->sent[2]['body']);
+    }
+
+    /**
+     * Test that view paths found in one request are looked up again in the next.
+     *
+     * @group system
+     */
+    public function testViewPathsAreForgottenBetweenRequests()
+    {
+        $bridge = $this->serve([
+            ['uri' => '/worker-test/views'],
+            ['uri' => '/worker-test/views'],
+        ]);
+
+        $this->assertSame('views:0', $bridge->sent[1]['body']);
+    }
+
+    /**
+     * Test that 'rakit.terminated' fires after the response went out, and that its
+     * failure or output does not affect the worker.
+     *
+     * @group system
+     */
+    public function testTerminatedFiresAfterTheResponse()
+    {
+        $seen = [];
+        $holder = new \stdClass();
+        $holder->bridge = null;
+
+        \System\Hook::listen('rakit.terminated', function () use (&$seen, $holder) {
+            $seen[] = count($holder->bridge->sent);
+            echo 'dropped';
+            throw new \Exception('terminated-boom');
+        });
+
+        $holder->bridge = new FakeBridge([
+            ['uri' => '/worker-test/echo'],
+            ['uri' => '/worker-test/echo'],
+        ]);
+
+        $level = ob_get_level();
+        (new Worker($holder->bridge))->run();
+
+        $this->assertSame($level, ob_get_level());
+        $this->assertSame([1, 2], $seen);
+        $this->assertSame('stray-body:-', $holder->bridge->sent[1]['body']);
     }
 
     /**

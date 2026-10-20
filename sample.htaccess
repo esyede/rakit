@@ -3,8 +3,9 @@ RewriteEngine On
 RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-RewriteRule ^(application|packages|storage|system|vendor|frontend)/(.*)?$ / [F,L]
-RewriteRule ^(key\.php|composer\.(lock|json))$ / [F,L]
+RewriteRule (^|/)\.(?!well-known/) - [F,L]
+RewriteRule ^(application|packages|storage|system|vendor|frontend|tests)/(.*)?$ / [F,L]
+RewriteRule ^(key\.php|paths\.php|_ide_helper\.php|rakit|doctum\.phar|repositories\.json|composer\.(lock|json))$ / [F,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

@@ -96,8 +96,14 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
     public function testCheckOrigin()
     {
         $server = new Server('tcp://127.0.0.1:0');
+        // No list: only the socket's own host, whatever the port.
         $this->setConfig($server, 'allowed_origins', []);
-        $this->assertTrue($this->callProtectedMethod($server, 'check_origin', ['any-origin']));
+        $this->assertFalse($this->callProtectedMethod($server, 'check_origin', ['any-origin', 'example.com']));
+        $this->assertFalse($this->callProtectedMethod($server, 'check_origin', ['https://evil.com', 'example.com:9000']));
+        $this->assertTrue($this->callProtectedMethod($server, 'check_origin', ['https://example.com', 'example.com:9000']));
+        $this->assertTrue($this->callProtectedMethod($server, 'check_origin', ['http://EXAMPLE.com:8080', 'example.com']));
+        $this->assertTrue($this->callProtectedMethod($server, 'check_origin', ['http://[::1]:8080', '[::1]:9000']));
+        $this->assertFalse($this->callProtectedMethod($server, 'check_origin', ['https://example.com.evil.com', 'example.com']));
 
         $this->setConfig($server, 'allowed_origins', ['example.com']);
         $this->assertTrue($this->callProtectedMethod($server, 'check_origin', ['example.com']));

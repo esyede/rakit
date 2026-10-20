@@ -429,7 +429,7 @@ class Server
 
         if (
             ($this->config['origin_required'] && ! isset($headers['origin']))
-            || ($this->config['origin_required'] && ! $this->check_origin($headers['origin']))
+            || ($this->config['origin_required'] && ! $this->check_origin($headers['origin'], $headers['host']))
         ) {
             $response = 'HTTP/1.1 403 Forbidden';
         }
@@ -488,11 +488,20 @@ class Server
      *
      * @return bool
      */
-    protected function check_origin($origin)
+    protected function check_origin($origin, $host = null)
     {
-        return empty($this->config['allowed_origins'])
-            ? true
-            : in_array($origin, $this->config['allowed_origins']);
+        if (! empty($this->config['allowed_origins'])) {
+            return in_array($origin, $this->config['allowed_origins']);
+        }
+
+        // No list: same host only, the port aside (the socket listens on its own
+        // port). Accepting every origin let any site open a socket with the
+        // visitor's cookies.
+        $origin = parse_url((string) $origin, PHP_URL_HOST);
+        $host = trim(preg_replace('/:\d+$/', '', trim((string) $host)), '[]');
+        $origin = is_string($origin) ? trim($origin, '[]') : '';
+
+        return '' !== $origin && 0 === strcasecmp($origin, $host);
     }
 
     /**

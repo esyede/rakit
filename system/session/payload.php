@@ -34,6 +34,14 @@ class Payload
     public $exists = true;
 
     /**
+     * The expiration a won sweep lottery deletes sessions down to, run by sweep_expired()
+     * once the response is out, so the client never waits on it.
+     *
+     * @var int|null
+     */
+    protected $sweep;
+
+    /**
      * Constructor.
      *
      * @param \System\Session\Drivers\Driver $driver
@@ -300,11 +308,24 @@ class Payload
         }
 
         if (mt_rand(1, $out_of) <= $chances) {
-            if (method_exists($this->driver, 'sweep')) {
-                /** @disregard */
-                $this->driver->sweep(time() - ((isset($config['lifetime']) ? (int) $config['lifetime'] : 0) * 60));
-            }
+            $this->sweep = time() - ((isset($config['lifetime']) ? (int) $config['lifetime'] : 0) * 60);
         }
+    }
+
+    /**
+     * Run the sweep save() drew, if any. Called after the response has been sent.
+     */
+    public function sweep_expired()
+    {
+        if (is_null($this->sweep) || ! method_exists($this->driver, 'sweep')) {
+            return;
+        }
+
+        $expiration = $this->sweep;
+        $this->sweep = null;
+
+        /** @disregard */
+        $this->driver->sweep($expiration);
     }
 
     /**

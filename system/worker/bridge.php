@@ -47,6 +47,8 @@ abstract class Bridge
             'language' => Config::get('application.language'),
             'env' => Request::env(),
             'singletons' => Container::$singletons,
+            // The class needs ext-curl's constants to load at all.
+            'curl' => extension_loaded('curl') ? \System\Curl::state() : null,
         ];
     }
 
@@ -153,6 +155,11 @@ abstract class Bridge
         if (class_exists('System\View', false)) {
             View::$last = null;
             View::$rendered = 0;
+            View::$files = [];
+        }
+
+        if (! is_null(self::$snapshot['curl'])) {
+            \System\Curl::state(self::$snapshot['curl']);
         }
 
         if (Config::get('application.language') !== self::$snapshot['language']) {

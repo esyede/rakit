@@ -9,7 +9,8 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        // Mock dependencies if needed
+        // These tests delete and republish the paginator view within one process.
+        \System\View::$files = [];
     }
 
     /**

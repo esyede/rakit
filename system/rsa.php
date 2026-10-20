@@ -26,7 +26,7 @@ class RSA
      *
      * @return string
      */
-    public static function encrypt($data, $padding = OPENSSL_PKCS1_PADDING)
+    public static function encrypt($data, $padding = OPENSSL_PKCS1_OAEP_PADDING)
     {
         static::generate();
 
@@ -65,7 +65,7 @@ class RSA
      *
      * @return string
      */
-    public static function decrypt($encrypted, $padding = OPENSSL_PKCS1_PADDING)
+    public static function decrypt($encrypted, $padding = OPENSSL_PKCS1_OAEP_PADDING)
     {
         static::generate();
 
@@ -84,7 +84,10 @@ class RSA
             $temp = '';
 
             if (! openssl_private_decrypt($chunk, $temp, $privkey, $padding)) {
-                throw new \Exception('Failed to decrypt the data: ' . static::get_openssl_errors());
+                // One message for every failure: telling a padding error apart from
+                // others is the oracle Bleichenbacher's attack on PKCS#1 v1.5 needs.
+                static::get_openssl_errors();
+                throw new \Exception('Failed to decrypt the data.');
             }
 
             $result .= $temp;

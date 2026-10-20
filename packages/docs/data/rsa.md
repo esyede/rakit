@@ -72,12 +72,13 @@ Storage::put('keys/public.pem', RSA::export_public());
 
 ## Padding
 
-The default padding is `OPENSSL_PKCS1_PADDING`. Pass another as the second argument, and use the same one when decrypting:
+The default padding is `OPENSSL_PKCS1_OAEP_PADDING`. Pass another as the second argument, and use the same one when decrypting. Data encrypted with the previous default (PKCS#1 v1.5) is decrypted with:
 
 ```php
-$encrypted = RSA::encrypt($data, OPENSSL_PKCS1_OAEP_PADDING);
-$decrypted = RSA::decrypt($encrypted, OPENSSL_PKCS1_OAEP_PADDING);
+$decrypted = RSA::decrypt($encrypted, OPENSSL_PKCS1_PADDING);
 ```
+
+Avoid PKCS#1 v1.5 for new data: where an attacker can submit ciphertext and see whether it decrypted, it allows recovering the plaintext (Bleichenbacher's attack). A failed decryption always throws the same `Failed to decrypt the data.` message for that reason.
 
 <a id="data-details"></a>
 

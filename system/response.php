@@ -404,6 +404,18 @@ class Response
             throw new \Exception(sprintf('Target file is outside allowed directory: %s', $path));
         }
 
+        // The project root is an allowed root, which holds the encryption key and the
+        // config: never serve those, whatever path the caller built.
+        $key = realpath(path('rakit_key'));
+        $config = realpath(path('app').'config');
+
+        if (
+            ($key && $real === $key)
+            || ($config && 0 === strpos($real, $config.DS))
+        ) {
+            throw new \Exception(sprintf('Target file is outside allowed directory: %s', $path));
+        }
+
         return $real;
     }
 

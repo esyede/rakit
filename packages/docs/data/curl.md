@@ -206,7 +206,7 @@ Curl::json_options(true, 512, JSON_BIGINT_AS_STRING); // $associative, $depth, $
 ### Timeout
 
 ```php
-Curl::timeout(5); // seconds; 0 or less means no limit (the default)
+Curl::timeout(5); // seconds; 0 or less means no limit. Unset, it is 30 seconds
 ```
 
 <a id="proxy"></a>

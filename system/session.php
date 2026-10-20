@@ -126,6 +126,16 @@ class Session
     }
 
     /**
+     * Finish the session work left for after the response: the expired-session sweep.
+     */
+    public static function terminate()
+    {
+        if (static::started()) {
+            static::$instance->sweep_expired();
+        }
+    }
+
+    /**
      * Register a third-party session driver.
      *
      * @param string   $driver

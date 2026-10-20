@@ -231,6 +231,31 @@ Security audit fixes — all severities:
 
 **Breaking**
 
+-   **`RSA` defaults to OAEP padding.** `RSA::encrypt()` and `RSA::decrypt()` now use
+    `OPENSSL_PKCS1_OAEP_PADDING` instead of `OPENSSL_PKCS1_PADDING`, and a failed
+    decryption always throws `Failed to decrypt the data.` (the OpenSSL detail made a
+    padding oracle). **Upgrade:** decrypt data encrypted under the old default with
+    `RSA::decrypt($data, OPENSSL_PKCS1_PADDING)`, and pass that padding explicitly
+    wherever another system expects PKCS#1 v1.5.
+
+-   **The WebSocket server no longer accepts every origin.** With `origin_required`
+    on and `allowed_origins` empty, only an `Origin` on the socket's own host (any
+    port) is accepted, where every origin was before, which let any site open a
+    socket with the visitor's cookies. **Upgrade:** list the origins of pages served
+    from other domains in `allowed_origins`.
+
+-   **`active_url` checks DNS only.** The rule now passes when the host has an `A`
+    or `AAAA` record, as in Laravel, instead of sending a `HEAD` request: that let
+    any user make the server probe internal hosts (`169.254.169.254`, `10.x`) and
+    blocked the process up to 5 seconds. A URL answering 404 now passes.
+
+-   **`Curl` times out after 30 seconds by default**, instead of never. Call
+    `Curl::timeout(0)` for no limit.
+
+-   **Throttle buckets follow the route pattern.** `throttle` keys its counter by the
+    matched route (`reset/(:any)`), not the literal path, so every token guessed on
+    one route counts against the same limit.
+
 -   **Mass assignment is closed by default.** `Facile\Model::$guarded` now defaults
     to `['*']` instead of `[]`, so a model that declares neither `$fillable` nor
     `$guarded` accepts nothing through `fill()` and `create()`. Previously every
@@ -312,6 +337,20 @@ Security audit fixes — all severities:
     used the model's current key, so `fill(['id' => 1])->save()` updated row 1.
     `save()`, `delete()`, `restore()` and `force_delete()` now target the key the
     record was loaded with.
+
+-   **`Response::download()` and `file()` never serve `key.php` or the config.**
+    The project root is an allowed root, so an absolute path built from user input
+    reached the encryption key, and with it forged cookies.
+
+-   **Worker mode: HTTP client settings no longer leak between requests.** `Curl`
+    keeps auth, cookie, proxy and headers in statics; the bridge now restores the
+    post-boot values before every request (`Curl::state()`).
+
+-   **`Str::bytes()` uses `random_bytes()`** on PHP 7+, before OpenSSL.
+
+-   **`sample.htaccess` denies dotfiles** (`.git/`, `.env`; `.well-known/` stays
+    reachable), `tests/`, `paths.php`, `_ide_helper.php`, `rakit`, `doctum.phar` and
+    `repositories.json`. The nginx example in the installation guide matches.
 
 -   **HTTP response splitting through a cookie.** The cookie `path` and `domain`
     went into `Set-Cookie` unchecked, so a line break in either carried a header of
@@ -399,6 +438,21 @@ Security audit fixes — all severities:
     builder and Facile, with Laravel's parameter lists.
 -   `->using('expression')` column modifier for PostgreSQL `->change()`.
 -   WebSocket `client_broadcast` config option.
+-   `rakit.terminated` hook, fired once the client has its response (after
+    `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
+-   `Curl::state()` to read or restore every HTTP client setting at once.
+
+**Performance**
+
+-   The session file sweep runs after the response is sent instead of before: with
+    many session files it added over 100 ms to one request in fifty.
+-   A JSON request body is decoded once, not on every `Input::get()`.
+-   `View::file()` remembers the paths it found for the rest of the request, so a
+    partial included in a loop is looked up once. Blade checks a compiled view with
+    two stats instead of three, and writes it to a temp file then renames it, so a
+    concurrent request never includes a half-written file.
+-   `boot.php` no longer loads `helpers.php` and registers the autoloader a second
+    time; `core.php` does both.
 
 **Removed**
 

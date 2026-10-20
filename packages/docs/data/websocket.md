@@ -180,7 +180,7 @@ Options live in `application/config/websocket.php`:
 | `max_buffer_size`       | `2048`     | Bytes read from a socket at once |
 | `max_payload_size`      | `10485760` | Largest message a client may send; bigger frames close the connection |
 | `origin_required`       | `true`     | Reject handshakes without an allowed `Origin` header |
-| `allowed_origins`       | `[]`       | Accepted origins; empty allows all (set your site's origin in production) |
+| `allowed_origins`       | `[]`       | Accepted origins, e.g. `['https://example.com']`; empty accepts the socket's own host only (any port) |
 | `allowed_hosts`         | `[]`       | Accepted `Host` headers; empty allows all |
 | `protocol_required`     | `false`    | Require a supported `Sec-WebSocket-Protocol` |
 | `supported_protocols`   | `[]`       | Accepted subprotocols; empty allows all |
@@ -191,6 +191,6 @@ Options live in `application/config/websocket.php`:
 | `logging_enabled`       | `true`     | Enable logging |
 | `logging_output`        | `'stdout'` | Where the server's own log lines go: `'file'` (through `Log`) or `'stdout'` |
 
-> With `origin_required` on, non-browser clients must send an `Origin` header. Set `allowed_origins` (e.g. `['https://example.com']`) in production, otherwise any origin is accepted.
+> With `origin_required` on, non-browser clients must send an `Origin` header. With `allowed_origins` empty, only an origin on the same host as the socket is accepted, so a page served from another domain must be listed.
 
 For a secure connection (`wss://`), put the server behind a TLS-terminating reverse proxy.
