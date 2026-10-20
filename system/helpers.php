@@ -12,7 +12,6 @@ if (! function_exists('e')) {
      */
     function e($value)
     {
-        // Htmlable prints as-is; that is what lets {{ $slot }} carry markup.
         if ($value instanceof \System\Htmlable) {
             return $value->to_html();
         }

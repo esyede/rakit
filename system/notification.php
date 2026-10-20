@@ -156,7 +156,6 @@ abstract class Notification
             return $notifiable->email;
         }
 
-        // A User model #1 listens on 'private-user.1'.
         if ('broadcast' === $channel && $notifiable instanceof Database\Facile\Model) {
             return 'private-'.strtolower(str_replace('\\', '.', get_class($notifiable))).'.'.$notifiable->get_key();
         }

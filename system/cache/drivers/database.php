@@ -133,9 +133,6 @@ class Database extends Driver
     protected function add_seconds($key, $value, $seconds)
     {
         $prefixed = $this->key.$key;
-
-        // An expired entry still holds the key. The time is compared as a string, as
-        // the column stores it, which PostgreSQL requires.
         $this->table()->where('key', '=', $prefixed)->where('expiration', '<=', (string) time())->delete();
 
         try {
@@ -145,7 +142,6 @@ class Database extends Driver
                 'expiration' => (string) (time() + (int) $seconds),
             ]);
         } catch (\PDOException $e) {
-            // SQLSTATE class 23: the key exists. Anything else is a real error.
             if (0 === strpos((string) $e->getCode(), '23')) {
                 return false;
             }

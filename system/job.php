@@ -40,7 +40,6 @@ class Job
     {
         static::auto_discover();
 
-        // Normalize dispatch_at
         if ($dispatch_at instanceof \DateTime) {
             $dispatch_at = $dispatch_at->format('Y-m-d H:i:s');
         } elseif (is_numeric($dispatch_at)) {
@@ -143,12 +142,10 @@ class Job
         static::$discovered = true;
         static::load_job_classes();
 
-        // Broadcasts sent with Broadcast::queue().
         Hook::listen('rakit.jobs.run: rakit-broadcast', function ($payload) {
             Broadcast::deliver((array) $payload);
         });
 
-        // Mailables sent with ->queue().
         Hook::listen('rakit.jobs.run: rakit-mailable', function ($payload) {
             Email\Mailable::deliver((array) $payload);
         });
@@ -159,7 +156,6 @@ class Job
             if (isset($job->name) && isset($job->payloads)) {
                 $payloads = is_string($job->payloads) ? unserialize($job->payloads) : $job->payloads;
 
-                // Chain and batch bookkeeping is the worker's, not the job's.
                 if (is_array($payloads)) {
                     unset($payloads['rakit_chain'], $payloads['rakit_batch'], $payloads['rakit_batch_of']);
                 }

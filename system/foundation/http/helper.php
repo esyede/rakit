@@ -261,7 +261,11 @@ class Helper extends Header
         $filenameFallback = (string) $filenameFallback;
 
         if (! in_array($disposition, [self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE])) {
-            throw new \Exception(sprintf("The disposition must be either '%s' or '%s'.", self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE));
+            throw new \Exception(sprintf(
+                "The disposition must be either '%s' or '%s'.",
+                self::DISPOSITION_ATTACHMENT,
+                self::DISPOSITION_INLINE
+            ));
         }
 
         if ('' === $filenameFallback) {
@@ -276,7 +280,12 @@ class Helper extends Header
             throw new \Exception("The filename fallback cannot contain the '%' character.");
         }
 
-        if (false !== strpos($filename, '/') || false !== strpos($filename, '\\') || false !== strpos($filenameFallback, '/') || false !== strpos($filenameFallback, '\\')) {
+        if (
+            false !== strpos($filename, '/')
+            || false !== strpos($filename, '\\')
+            || false !== strpos($filenameFallback, '/')
+            || false !== strpos($filenameFallback, '\\')
+        ) {
             throw new \Exception("The filename and the fallback cannot contain the '/' and '\' characters.");
         }
 
@@ -297,7 +306,12 @@ class Helper extends Header
      */
     protected function computeCacheControlValue()
     {
-        if (! $this->cacheControl && ! $this->has('ETag') && ! $this->has('Last-Modified') && ! $this->has('Expires')) {
+        if (
+            ! $this->cacheControl
+            && ! $this->has('ETag')
+            && ! $this->has('Last-Modified')
+            && ! $this->has('Expires')
+        ) {
             return 'no-cache';
         }
 

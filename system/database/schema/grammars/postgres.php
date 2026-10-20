@@ -56,8 +56,6 @@ class Postgres extends Grammar
         foreach ($this->changed($table) as $column) {
             $prefix = 'ALTER COLUMN '.$this->wrap($column).' ';
             $default = $this->defaults($table, $column);
-            // SERIAL is not a type, only a shorthand: alter to the integer type underneath
-            // and leave the sequence default alone.
             $type = str_replace(['BIGSERIAL', 'SMALLSERIAL', 'SERIAL'], ['BIGINT', 'SMALLINT', 'INTEGER'], $this->type($column));
             $using = (isset($column->using) && '' !== (string) $column->using)
                 ? (string) $column->using

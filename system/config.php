@@ -111,8 +111,6 @@ class Config
         }
 
         $path = Package::path($package).'config'.DS.$file.'.php';
-
-        // The mtime is only read back while reloading: skip the two stats otherwise.
         static::$gets[$key] = [
             'value' => $result,
             'found' => $found,

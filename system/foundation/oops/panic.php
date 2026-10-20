@@ -220,7 +220,6 @@ class Panic
 
         if (! is_file($file)) {
             if ($handle = @fopen($file, 'x')) {
-                // Buffer ganda terkadang mencegah pengiriman HTTP header
                 ob_start();
                 ob_start(function ($buffer) use ($handle) {
                     fwrite($handle, $buffer);
@@ -311,7 +310,6 @@ class Panic
                 // Skip error
             }
 
-            // Restore ob-level if corrupted
             while (ob_get_level() > $obLevel) {
                 ob_end_clean();
             }
@@ -406,7 +404,6 @@ class Panic
         $out .= '## Stack trace' . $nl;
         $out .= '```' . $nl . $e->getTraceAsString() . $nl . '```' . $nl;
 
-        // Chained (previous) exceptions
         $prev = $e->getPrevious();
         $guard = 0;
         $maxDepth = 5;
@@ -515,7 +512,10 @@ class Panic
         if (! empty($vars)) {
             $out = preg_replace_callback('#">\$(\w+)(&nbsp;)?</span>#', function ($m) use ($vars) {
                 return array_key_exists($m[1], $vars)
-                    ? '" title="' . str_replace('"', '&quot;', trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))) . $m[0]
+                    ? '" title="' . str_replace(
+                        '"',
+                        '&quot;',
+                        trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))) . $m[0]
                     : $m[0];
             }, $out);
         }
@@ -561,7 +561,11 @@ class Panic
             preg_match_all('#<[^>]+>#', $s, $tags);
 
             if ($n === $line) {
-                $out .= sprintf("<span class='highlight'>%{$numWidth}s:    %s\n</span>%s", $n, strip_tags($s), implode('', $tags[0]));
+                $out .= sprintf(
+                    "<span class='highlight'>%{$numWidth}s:    %s\n</span>%s",
+                    $n,
+                    strip_tags($s), implode('', $tags[0])
+                );
             } else {
                 $out .= sprintf("<span class='line'>%{$numWidth}s:</span>    %s\n", $n, $s);
             }

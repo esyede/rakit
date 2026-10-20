@@ -247,7 +247,6 @@ class Log
             static::fallback($record, $channel, $e);
         }
 
-        // Track log for debugger
         if (class_exists('\System\Foundation\Oops\Debugger', false) && ! \System\Foundation\Oops\Debugger::$productionMode) {
             if (! \System\Foundation\Oops\Debugger::$productionMode) {
                 $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
@@ -259,7 +258,6 @@ class Log
                     isset($trace[1]['line']) ? $trace[1]['line'] : null
                 );
 
-                // Also surface a context exception on the Exceptions panel.
                 if (isset($context['exception'])
                     && ($context['exception'] instanceof \Throwable || $context['exception'] instanceof \Exception)) {
                     \System\Foundation\Oops\Collectors::addException($context['exception']);
@@ -342,7 +340,6 @@ class Log
     {
         $channels = Config::get('log.channels');
 
-        // Applications without a log config keep writing daily files, as they always did.
         if (! is_array($channels) && 'daily' === $channel) {
             return ['driver' => 'daily'];
         }

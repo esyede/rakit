@@ -34,7 +34,6 @@ class Syslog extends Driver
         $flags = (int) $this->option('flags', LOG_PID);
         $facility = (int) $this->option('facility', LOG_USER);
 
-        // Reopened on every write, other code may have changed the identity in between.
         if (! openlog($ident, $flags, $facility)) {
             throw new \RuntimeException(sprintf('Unable to open syslog for: %s', $ident));
         }

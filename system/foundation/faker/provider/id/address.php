@@ -142,11 +142,11 @@ class Address extends BaseAddress
         'Saint Pierre dan Miquelon', 'Saint Vincent dan Grenadines', 'Samoa', 'Samoa Amerika', 'San Marino',
         'Sao Tome dan Principe', 'Selandia baru', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapura',
         'Siprus', 'Slovakia (Republik Slovak)', 'Slovenia', 'Somalia', 'Spanyol', 'Sri Lanka', 'Sudan', 'Suriah',
-        'Suriname', 'Svalbard & Jan Mayen Islands', 'Swaziland', 'Swedia', 'Swiss', 'Taiwan', 'Tajikistan', 'Tanjung Verde',
-        'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tokelau', 'Tonga', 'Trinidad dan Tobago', 'Tunisia', 'Turki',
-        'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraina', 'Uni Emirat Arab', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatikan',
-        'Venezuela', 'Vietnam', 'Wallis dan Futuna', 'Wilayah Palestina', 'Wilayah Samudra Hindia Britania',
-        'Wilayah Selatan Perancis', 'Yaman', 'Yunani', 'Zambia', 'Zimbabwe',
+        'Suriname', 'Svalbard & Jan Mayen Islands', 'Swaziland', 'Swedia', 'Swiss', 'Taiwan', 'Tajikistan',
+        'Tanjung Verde', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tokelau', 'Tonga', 'Trinidad dan Tobago',
+        'Tunisia', 'Turki', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraina', 'Uni Emirat Arab', 'Uruguay',
+        'Uzbekistan', 'Vanuatu', 'Vatikan', 'Venezuela', 'Vietnam', 'Wallis dan Futuna', 'Wilayah Palestina',
+        'Wilayah Samudra Hindia Britania', 'Wilayah Selatan Perancis', 'Yaman', 'Yunani', 'Zambia', 'Zimbabwe',
     ];
 
     /**

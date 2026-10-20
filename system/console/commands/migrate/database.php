@@ -49,7 +49,6 @@ class Database
         }
 
         $batch = $query->copy()->max('batch');
-
         return $query->where('batch', '=', $batch)->order_by('name', 'desc')->get()->all();
     }
 

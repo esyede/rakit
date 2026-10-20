@@ -110,14 +110,8 @@ class MySQL extends Grammar
     protected function unsigned(Table $table, Magic $column)
     {
         $integers = [
-            'integer',
-            'biginteger',
-            'medium_integer',
-            'tiny_integer',
-            'small_integer',
-            'float',
-            'double',
-            'decimal',
+            'integer', 'biginteger', 'medium_integer', 'tiny_integer', 'small_integer',
+            'float', 'double', 'decimal',
         ];
 
         if (in_array($column->type, $integers) && isset($column->unsigned) && $column->unsigned) {

@@ -109,7 +109,6 @@ class Lang
         }
 
         $line = Arr::get(static::$lines[$package][$language][$file], $line, $default);
-
         return is_string($line) ? $this->replace($line, $this->replacements) : $line;
     }
 
@@ -136,7 +135,6 @@ class Lang
         }
 
         $line = static::select($line, $count, $language);
-
         return static::line($key, [], $language)->replace($line, array_merge(['count' => $count], $replacements));
     }
 
@@ -183,7 +181,6 @@ class Lang
             return end($segments);
         }
 
-        // Languages without a plural form use one segment for every count.
         $base = strtolower((string) strtok((string) $language, '-_'));
         $singular = in_array($base, ['id', 'ms', 'ja', 'ko', 'zh', 'th', 'vi', 'km', 'lo', 'my', 'tr', 'fa'], true);
         $index = ($singular || 1 == abs($count)) ? 0 : 1;
@@ -201,7 +198,6 @@ class Lang
      */
     public function replace($line, array $replacements)
     {
-        // Longest first, so :name does not eat the start of :name_full.
         if (count($replacements) > 1) {
             uksort($replacements, function ($left, $right) {
                 return mb_strlen((string) $right, '8bit') - mb_strlen((string) $left, '8bit');

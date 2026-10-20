@@ -37,7 +37,6 @@ class RSA
         $total = mb_strlen($data, '8bit');
         $result = '';
 
-        // Walk by offset, not by shrinking: a trailing '0' chunk is falsy.
         for ($offset = 0; $offset < $total; $offset += $length) {
             $chunk = mb_substr($data, $offset, $length, '8bit');
             $temp = '';
@@ -84,8 +83,6 @@ class RSA
             $temp = '';
 
             if (! openssl_private_decrypt($chunk, $temp, $privkey, $padding)) {
-                // One message for every failure: telling a padding error apart from
-                // others is the oracle Bleichenbacher's attack on PKCS#1 v1.5 needs.
                 static::get_openssl_errors();
                 throw new \Exception('Failed to decrypt the data.');
             }

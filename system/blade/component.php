@@ -382,7 +382,6 @@ class Component
         }
 
         list($package, $component) = explode('::', $name, 2);
-
         return $package . '::components.' . $component;
     }
 

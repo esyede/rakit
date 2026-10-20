@@ -257,7 +257,6 @@ class Query
     public function add_binding(array $values, $type = 'where')
     {
         $this->check_binding_type($type);
-
         return $this->set_bindings(array_merge($this->clauses[$type], array_values($values)), $type);
     }
 
@@ -685,14 +684,12 @@ class Query
      */
     public function where_exists($query, $connector = 'AND', $not = false)
     {
-        // The closure gets its own query to build the subquery with, like where_nested().
         if ($query instanceof \Closure) {
             $callback = $query;
             $query = new static($this->connection, $this->grammar, $this->from);
 
             call_user_func($callback, $query);
 
-            // EXISTS ( .. ) needs a complete statement, so supply a SELECT.
             if (is_null($query->selects)) {
                 $query->select(['*']);
             }
@@ -910,9 +907,8 @@ class Query
     public function insert(array $values)
     {
         $values = is_array(reset($values)) ? $values : [$values];
-        $bindings = [];
-
         $columns = array_keys(reset($values));
+        $bindings = [];
 
         foreach ($values as $value) {
             foreach ($columns as $column) {
@@ -920,11 +916,7 @@ class Query
             }
         }
 
-        $sql = $this->grammar->insert($this, $values);
-
-        // A failing insert throws, so getting here means it worked.
-        $this->connection->query($sql, $bindings);
-
+        $this->connection->query($this->grammar->insert($this, $values), $bindings);
         return true;
     }
 
@@ -940,12 +932,9 @@ class Query
     public function insert_get_id(array $values, $column = 'id', $sequence = null)
     {
         $sql = $this->grammar->insert_get_id($this, $values, $column);
-        // An INSERT has no WHERE: bindings added by scopes must stay out of it.
         $result = $this->connection->query($sql, array_values($values));
         $row = (is_array($result) && isset($result[0])) ? $result[0] : null;
 
-        // PostgreSQL returns the row's own key; lastInsertId() would read lastval(),
-        // the last value of any sequence, a trigger's insert elsewhere included.
         if (is_object($row) && isset($row->{$column})) {
             $id = $row->{$column};
         } elseif (is_array($row) && isset($row[$column])) {
@@ -958,7 +947,6 @@ class Query
             return null;
         }
 
-        // Cast digits only: UUID, ULID and other string keys must survive as-is.
         return (is_string($id) && preg_match('/^[0-9]+$/', $id)) ? (int) $id : $id;
     }
 
@@ -1104,7 +1092,6 @@ class Query
     public function aggregate($aggregator, array $columns)
     {
         $this->aggregate = compact('aggregator', 'columns');
-        // The aggregate replaces the SELECT list, so its bindings go too.
         $sql = $this->grammar->select($this);
         $result = $this->connection->only($sql, $this->get_bindings(['select']));
 
@@ -1194,7 +1181,6 @@ class Query
         $query = new static($this->connection, $this->grammar, $this->from);
         call_user_func($callback, $query);
 
-        // An empty nested query would compile to '()', which is not valid sql.
         if (! empty($query->wheres)) {
             $type = 'where_nested';
             $this->wheres[] = compact('type', 'query', 'connector');
@@ -1650,7 +1636,6 @@ class Query
      */
     public function only($column)
     {
-        // Only the first row is read, so fetch just that one.
         $query = $this->copy()->select([$column]);
         $query->limit = 1;
 
@@ -1816,7 +1801,6 @@ class Query
     public function re_order($column = null, $direction = 'asc')
     {
         $this->orderings = null;
-
         return is_null($column) ? $this : $this->order_by($column, $direction);
     }
 
@@ -1831,7 +1815,6 @@ class Query
     public function lock($value = true)
     {
         $this->lock = $value;
-
         return $this;
     }
 
@@ -1893,7 +1876,6 @@ class Query
         }
 
         $this->lock_option = $option;
-
         return $this;
     }
 
@@ -2095,7 +2077,6 @@ class Query
         }
 
         $update->update($values);
-
         return true;
     }
 
@@ -2117,7 +2098,6 @@ class Query
         $columns = array_keys(reset($values));
         $bindings = [];
 
-        // Bind in the column order of the first record, like insert() does.
         foreach ($values as $value) {
             foreach ($columns as $column) {
                 $bindings[] = array_key_exists($column, $value) ? $value[$column] : null;
@@ -2125,7 +2105,6 @@ class Query
         }
 
         $this->connection->query($sql, $bindings);
-
         return true;
     }
 
@@ -2134,9 +2113,9 @@ class Query
      * exists when it matches on the unique_by columns, which need a unique index (or
      * the primary key) on every driver but MySQL, which uses any unique key.
      *
-     * @param array        $values    one record, or a list of them
+     * @param array        $values
      * @param array|string $unique_by
-     * @param array|null   $update    the columns to update; NULL for every inserted one
+     * @param array|null   $update
      *
      * @return bool
      */
@@ -2191,7 +2170,6 @@ class Query
         $more = count($items) > $perpage;
         $items = array_slice($items, 0, $perpage);
 
-        // A total that makes the next page, and only that one, exist.
         $total = (($page - 1) * $perpage) + count($items) + ($more ? 1 : 0);
         $paginator = Paginator::make(new Collection($items), $total, $perpage, $page_name, $page);
         $paginator->total = null;
@@ -2230,7 +2208,6 @@ class Query
             $orderings[$ordering['column']] = $ordering['direction'];
         }
 
-        // The row attribute of 'users.id' is 'id'.
         $keys = array_map(function ($column) {
             $dot = strrpos($column, '.');
             return (false === $dot) ? $column : substr($column, $dot + 1);
@@ -2244,7 +2221,6 @@ class Query
             $values = array_values($position[0]);
             $columns_ = array_keys($orderings);
 
-            // (a > x) OR (a = x AND b > y) OR ..., each comparison in its column's direction.
             $this->where(function ($query) use ($orderings, $columns_, $values, $backwards) {
                 foreach ($columns_ as $i => $column) {
                     $query->or_where(function ($query) use ($orderings, $columns_, $values, $backwards, $i, $column) {
@@ -2338,8 +2314,6 @@ class Query
         $this->offset = null;
 
         $columns = $this->without_select_aliases($columns);
-        // DISTINCT counts too: COUNT(*) would count the duplicates distinct() removes,
-        // and COUNT(DISTINCT a, b) is MySQL only, so count the rows of the query itself.
         $grouped = (! empty($this->groupings) || ! empty($this->havings) || $this->distinct);
         $total = $grouped ? $this->count_grouped($columns) : $this->aggregate('COUNT', $columns);
 
@@ -2546,7 +2520,6 @@ class Query
             throw new \InvalidArgumentException('Invalid column identifier.');
         }
 
-        // Only table.column identifiers; anything else could inject SQL.
         if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/', $column)) {
             throw new \InvalidArgumentException(sprintf('Invalid column identifier: %s', $column));
         }

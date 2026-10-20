@@ -63,7 +63,6 @@ class Lock
     public function get($callback = null)
     {
         $acquired = $this->driver->acquire_lock($this->name, $this->owner, $this->seconds);
-
         return (! $acquired || is_null($callback)) ? $acquired : $this->run($callback);
     }
 

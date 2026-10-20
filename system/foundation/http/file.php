@@ -75,7 +75,10 @@ class File extends Parameter
             $keys = array_keys($file);
             sort($keys);
             $file = ($keys === self::$fileKeys)
-                ? ((UPLOAD_ERR_NO_FILE !== $file['error']) ? new Upload($file['tmp_name'], $file['name'], $file['type'], $file['size'], $file['error']) : null)
+                ? ((UPLOAD_ERR_NO_FILE !== $file['error'])
+                    ? new Upload($file['tmp_name'], $file['name'], $file['type'], $file['size'], $file['error'])
+                    : null
+                )
                 : array_map([$this, 'convertFileInformation'], $file);
         }
 

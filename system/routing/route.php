@@ -18,20 +18,6 @@ use System\URI;
 class Route
 {
     /**
-     * Contains the route bindings, wildcard name => resolver.
-     *
-     * @var array
-     */
-    protected static $binders = [];
-
-    /**
-     * Contains the column of each model binding, wildcard name => column or NULL.
-     *
-     * @var array
-     */
-    protected static $columns = [];
-
-    /**
      * Contains the URI being responded to by the route.
      *
      * @var string
@@ -79,6 +65,20 @@ class Route
      * @var array
      */
     public $parameters;
+
+    /**
+     * Contains the route bindings, wildcard name => resolver.
+     *
+     * @var array
+     */
+    protected static $binders = [];
+
+    /**
+     * Contains the column of each model binding, wildcard name => column or NULL.
+     *
+     * @var array
+     */
+    protected static $columns = [];
 
     /**
      * Constructor.
@@ -267,7 +267,6 @@ class Route
                 continue;
             }
 
-            // ['name' => .., $callback]: register the callback under that name.
             if (is_array($middleware)) {
                 list($name, $callback) = array_values($middleware);
                 Middleware::register($name, $callback);
@@ -275,7 +274,6 @@ class Route
                 continue;
             }
 
-            // A bare callable gets a name of its own, derived from the pattern.
             if (! is_string($middleware)) {
                 $name = 'pattern#'.$pattern;
                 Middleware::register($name, $middleware);
@@ -283,7 +281,6 @@ class Route
                 continue;
             }
 
-            // Otherwise it names the middlewares to attach, 'auth|admin' style.
             $middlewares = array_merge($middlewares, Middleware::parse($middleware));
         }
 

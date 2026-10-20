@@ -60,7 +60,6 @@ class Grammar extends BaseGrammar
         $sql = [];
 
         foreach ($this->components as $component) {
-            // A subquery without select() still needs its SELECT: selects() defaults to '*'.
             if (! is_null($query->{$component}) || 'selects' === $component) {
                 $sql[$component] = call_user_func([$this, $component], $query);
             }
@@ -96,9 +95,7 @@ class Grammar extends BaseGrammar
             return;
         }
 
-        // An empty column list still has to select something.
         $selects = empty($query->selects) ? ['*'] : $query->selects;
-
         return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ').$this->columnize($selects);
     }
 
@@ -113,7 +110,6 @@ class Grammar extends BaseGrammar
     {
         $aggregator = strtoupper((string) $query->aggregate['aggregator']);
 
-        // aggregate() is public, so its function name may reach here from anywhere.
         if (! in_array($aggregator, ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'], true)) {
             throw new \InvalidArgumentException(sprintf('Invalid aggregate function: %s', $query->aggregate['aggregator']));
         }

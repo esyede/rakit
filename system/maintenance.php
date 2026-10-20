@@ -20,7 +20,6 @@ class Maintenance
      */
     public static function down($secret = null, $retry = null, array $allowed = [])
     {
-        // Only a hash of the secret is stored: storage/ may be readable.
         $data = [
             'time' => time(),
             'retry' => is_null($retry) ? null : max(0, (int) $retry),
@@ -77,7 +76,6 @@ class Maintenance
      */
     public static function check()
     {
-        // One stat per request while the application is up.
         if (! is_file(static::path()) || is_null($data = static::data())) {
             return null;
         }

@@ -258,10 +258,14 @@ class Collectors
             return true;
         }
 
-        // Simple pattern matching for dynamic routes
         $pattern = preg_quote((string) $pattern, '#');
         $pattern = str_replace(
-            [preg_quote('(:num)', '#'), preg_quote('(:any)', '#'), preg_quote('(:alpha)', '#'), preg_quote('(:alnum)', '#')],
+            [
+                preg_quote('(:num)', '#'),
+                preg_quote('(:any)', '#'),
+                preg_quote('(:alpha)', '#'),
+                preg_quote('(:alnum)', '#')
+            ],
             ['([0-9]+)', '([^/]+)', '([a-zA-Z]+)', '([a-zA-Z0-9]+)'],
             $pattern
         );
@@ -509,8 +513,16 @@ class Collectors
      *
      * @return void
      */
-    public static function trackHttp($method, $url, $status, $duration, $size = 0, $error = null, array $headers = [], $body = null)
-    {
+    public static function trackHttp(
+        $method,
+        $url,
+        $status,
+        $duration,
+        $size = 0,
+        $error = null,
+        array $headers = [],
+        $body = null
+    ) {
         if (! static::enabled('http')) {
             return;
         }

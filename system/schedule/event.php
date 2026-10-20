@@ -604,7 +604,6 @@ class Event
             } elseif (false !== strpos($part, '-')) {
                 list($start, $end) = array_map('intval', explode('-', $part, 2));
             } else {
-                // '5/15' runs from 5 every 15; a bare '5' only at 5.
                 $start = (int) $part;
                 $end = ($step > 1) ? $max : $start;
             }

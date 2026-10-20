@@ -45,8 +45,6 @@ class Outputs
             fclose($handle);
 
             if (self::BOM === $head) {
-                // The fourth element is the call stack, which both the handler and the
-                // renderer below read.
                 $this->list[] = [$file, 1, self::BOM, []];
             }
         }

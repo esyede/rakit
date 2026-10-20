@@ -77,11 +77,8 @@ class Broadcast
      */
     public static function queue($channels, $event, $data = [], $queue = 'default')
     {
-        return Job::dispatch('rakit-broadcast', [
-            'channels' => (array) $channels,
-            'event' => (string) $event,
-            'data' => $data,
-        ])->on_queue($queue);
+        $data = ['channels' => (array) $channels, 'event' => (string) $event, 'data' => $data];
+        return Job::dispatch('rakit-broadcast', $data)->on_queue($queue);
     }
 
     /**
@@ -133,7 +130,6 @@ class Broadcast
             if (preg_match($regex, $channel, $matches)) {
                 array_shift($matches);
                 $allowed = call_user_func_array($callback, array_merge([$user], $matches));
-
                 return $allowed ? Server::sign($client_id, $channel) : null;
             }
         }
@@ -151,7 +147,6 @@ class Broadcast
     {
         Routing\Route::post('broadcasting/auth', ['before' => $middleware, function () {
             $auth = Broadcast::auth(Input::get('client_id'), Input::get('channel'));
-
             return is_null($auth) ? Response::json(['message' => 'Forbidden'], 403) : Response::json(['auth' => $auth]);
         }]);
     }
@@ -271,7 +266,9 @@ class Broadcast
 
         if (! preg_match('#^HTTP/1\.1 101 #', $response)) {
             fclose($socket);
-            throw new \RuntimeException(sprintf('The WebSocket server at %s refused the connection: %s', $address, strtok($response, CRLF)));
+            throw new \RuntimeException(
+                sprintf('The WebSocket server at %s refused the connection: %s', $address, strtok($response, CRLF))
+            );
         }
 
         $time = time();

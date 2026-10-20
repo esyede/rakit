@@ -79,10 +79,9 @@ class Process
     /**
      * Constructor.
      *
-     * @param string|array  $command a shell command line, or a program and its arguments (escaped)
-     * @param array         $options 'path' (working directory), 'env' (added to the current
-     *                               environment), 'input' (written to stdin), 'timeout' (seconds)
-     * @param \Closure|null $output  called with ('out' or 'err', $chunk) as output arrives
+     * @param string|array  $command
+     * @param array         $options
+     * @param \Closure|null $output
      */
     public function __construct($command, array $options = [], $output = null)
     {
@@ -162,7 +161,6 @@ class Process
             return true;
         }
 
-        // Only the first status after the end holds the exit code.
         $this->exit_code = (int) $status['exitcode'];
         $this->read(0);
         $this->close();
@@ -291,8 +289,6 @@ class Process
      */
     protected function open()
     {
-        // 'exec' makes the shell become the program, so stop() reaches the program itself. Not
-        // for shell lines: 'exec a; b' would never run b.
         $command = ($this->program && '\\' !== DIRECTORY_SEPARATOR) ? 'exec '.$this->command : $this->command;
         $env = is_null($this->options['env']) ? null : array_merge(static::environment(), (array) $this->options['env']);
         $descriptors = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
@@ -305,8 +301,6 @@ class Process
 
         $this->started = microtime(true);
 
-        // ponytail: input is written whole before output is read; a command that answers
-        // more than a pipe buffer (~64KB) before reading all of a large input would block.
         if (! is_null($this->options['input'])) {
             fwrite($pipes[0], (string) $this->options['input']);
         }

@@ -29,8 +29,6 @@ class Session
     public static function load()
     {
         $config = Config::get('session');
-
-        // Skip session for stateless routes (e.g. API endpoints, webhooks).
         $stateless = isset($config['stateless']) ? (array) $config['stateless'] : [];
 
         if (! empty($stateless)) {

@@ -8,15 +8,6 @@ use System\Config;
 use System\Session;
 use System\Worker\Worker;
 
-/**
- * HTTP requests for tests, through the full request lifecycle: middleware, session,
- * routing, views. Use it in a test case:
- *
- *     class UserTest extends \PHPUnit_Framework_TestCase
- *     {
- *         use \System\Testing\Http;
- *     }
- */
 trait Http
 {
     /**
@@ -205,7 +196,6 @@ trait Http
         $headers = array_merge($this->http_headers, $headers);
         $safe = in_array($method, ['GET', 'HEAD', 'OPTIONS'], true);
 
-        // A browser would carry the session's CSRF token; send it the same way.
         if (! $safe && ! $this->has_header($headers, 'X-Csrf-Token') && Config::get('session.driver')) {
             if (is_null($this->http_token)) {
                 $this->start_session();

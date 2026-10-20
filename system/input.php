@@ -51,8 +51,6 @@ class Input
             return [];
         }
 
-        // Decode once per body: get() runs this on every call. Anything assigning
-        // $json (replace(), clear(), the worker reset) makes the pair stale.
         if (is_null(static::$json) || ! is_array(static::$decoded) || static::$decoded[0] !== static::$json) {
             $json = static::json();
             static::$decoded = [static::$json, is_array($json) ? $json : []];
@@ -207,7 +205,6 @@ class Input
     public static function string($key, $default = '')
     {
         $value = static::get($key, $default);
-
         return is_scalar($value) ? (string) $value : $default;
     }
 
@@ -222,7 +219,6 @@ class Input
     public static function integer($key, $default = 0)
     {
         $value = static::get($key, $default);
-
         return is_numeric($value) ? (int) $value : (int) $default;
     }
 
@@ -237,7 +233,6 @@ class Input
     public static function float($key, $default = 0.0)
     {
         $value = static::get($key, $default);
-
         return is_numeric($value) ? (float) $value : (float) $default;
     }
 

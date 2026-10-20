@@ -159,7 +159,8 @@ class Response
      */
     public function __toString()
     {
-        return sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText)."\r\n".$this->headers."\r\n".$this->getContent();
+        return sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText)
+            ."\r\n".$this->headers."\r\n".$this->getContent();
     }
 
     /**
@@ -441,7 +442,10 @@ class Response
             return false;
         }
 
-        if ($this->headers->hasCacheControlDirective('no-store') || $this->headers->getCacheControlDirective('private')) {
+        if (
+            $this->headers->hasCacheControlDirective('no-store')
+            || $this->headers->getCacheControlDirective('private')
+        ) {
             return false;
         }
 
@@ -738,7 +742,10 @@ class Response
         $caching = ['etag', 'last_modified', 'max_age', 's_maxage', 'private', 'public'];
 
         if ($diff = array_diff(array_keys($options), $caching)) {
-            throw new \Exception(sprintf('Response does not support the following options: %s', implode('", "', array_values($diff))));
+            throw new \Exception(sprintf(
+                'Response does not support the following options: %s',
+                implode('", "', array_values($diff))
+            ));
         }
 
         if (isset($options['etag'])) {
@@ -785,7 +792,10 @@ class Response
     {
         $this->setStatusCode(304);
         $this->setContent(null);
-        $headers = ['Allow', 'Content-Encoding', 'Content-Language', 'Content-Length', 'Content-MD5', 'Content-Type', 'Last-Modified'];
+        $headers = [
+            'Allow', 'Content-Encoding', 'Content-Language',  'Content-Length',
+            'Content-MD5', 'Content-Type', 'Last-Modified',
+        ];
 
         foreach ($headers as $header) {
             $this->headers->remove($header);
@@ -847,7 +857,8 @@ class Response
         $notModified = false;
 
         if ($etags) {
-            $notModified = (in_array($this->getEtag(), $etags) || in_array('*', $etags)) && (! $lastModified || $this->headers->get('Last-Modified') === $lastModified);
+            $notModified = (in_array($this->getEtag(), $etags) || in_array('*', $etags))
+                && (! $lastModified || $this->headers->get('Last-Modified') === $lastModified);
         } elseif ($lastModified) {
             $notModified = ($lastModified === $this->headers->get('Last-Modified'));
         }
@@ -958,7 +969,8 @@ class Response
      */
     public function isRedirect($location = null)
     {
-        return in_array($this->statusCode, [201, 301, 302, 303, 307, 308]) && ((null === $location) ? true : ((string) $location === (string) $this->headers->get('Location')));
+        return in_array($this->statusCode, [201, 301, 302, 303, 307, 308])
+            && ((null === $location) ? true : ((string) $location === (string) $this->headers->get('Location')));
     }
 
     /**
@@ -978,7 +990,9 @@ class Response
      */
     public function finish()
     {
-        $cliRequest = defined('STDIN') || 'cli' === php_sapi_name() || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
+        $cliRequest = defined('STDIN')
+            || 'cli' === php_sapi_name()
+            || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
 
         if (function_exists('fastcgi_finish_request')) {
             /** @disregard */

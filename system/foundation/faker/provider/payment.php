@@ -132,11 +132,14 @@ class Payment extends Base
      */
     public static function creditCardNumber($type = null, $formatted = false, $separator = '-')
     {
-        $number = static::numerify(static::randomElement(static::$cardParams[is_null($type) ? static::creditCardType() : $type]));
+        $number = static::numerify(static::randomElement(
+            static::$cardParams[is_null($type) ? static::creditCardType() : $type]
+        ));
         $number .= Luhn::computeCheckDigit($number);
 
         if ($formatted) {
-            $number = substr($number, 0, 4).$separator.substr($number, 4, 4).$separator.substr($number, 8, 4).$separator.substr($number, 12);
+            $number = substr($number, 0, 4).$separator.substr($number, 4, 4)
+                .$separator.substr($number, 8, 4).$separator.substr($number, 12);
         }
 
         return $number;
@@ -164,7 +167,9 @@ class Payment extends Base
      */
     public function creditCardExpirationDateString($valid = true, $expirationDateFormat = null)
     {
-        return $this->creditCardExpirationDate($valid)->format(is_null($expirationDateFormat) ? static::$expirationDateFormat : $expirationDateFormat);
+        return $this->creditCardExpirationDate($valid)->format(
+            is_null($expirationDateFormat) ? static::$expirationDateFormat : $expirationDateFormat
+        );
     }
 
     /**
@@ -232,7 +237,9 @@ class Payment extends Base
             }
             switch ($class) {
                 default:
-                case 'c': $result .= (mt_rand(0, 100) <= 50) ? static::randomDigit() : strtoupper((string) static::randomLetter());
+                case 'c': $result .= (mt_rand(0, 100) <= 50)
+                    ? static::randomDigit()
+                    : strtoupper((string) static::randomLetter());
                     break;
                 case 'a': $result .= strtoupper((string) static::randomLetter());
                     break;

@@ -101,7 +101,6 @@ class Schema
                 break;
 
             case 'pgsql':
-                // table_schema holds the schema (e.g. public), not the database name.
                 $query = 'SELECT column_name FROM information_schema.columns '
                     .'WHERE table_catalog='.$database.' AND table_schema=current_schema()'
                     .' AND table_name='.$table;
@@ -337,7 +336,6 @@ class Schema
                 $changed += (isset($column->change) && $column->change) ? 1 : 0;
             }
 
-            // Columns marked with change() are altered in place, the rest are added.
             if ($changed > 0) {
                 array_unshift($table->commands, new Magic(['type' => 'change']));
             }

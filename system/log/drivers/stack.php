@@ -36,7 +36,6 @@ class Stack extends Driver
                 continue;
             }
 
-            // One failing channel must not keep the others from receiving the record.
             try {
                 if (false === Log::driver($channel)->handle($record)) {
                     $errors[] = sprintf('[%s] Unable to write the log entry.', $channel);

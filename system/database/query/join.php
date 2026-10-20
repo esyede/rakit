@@ -112,7 +112,6 @@ class Join
 
         $this->clauses[] = compact('column', 'operator', 'value', 'connector');
 
-        // "col = NULL" never matches, so the grammar compiles NULL as IS [NOT] NULL, unbound.
         if (null !== $value) {
             $this->bindings[] = $value;
         }

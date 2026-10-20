@@ -475,7 +475,6 @@ class Stringable
      */
     public function explode($delimiter, $limit = null)
     {
-        // An empty delimiter throws on PHP 8 and returns false before it: refuse both.
         if ('' === (string) $delimiter) {
             throw new \InvalidArgumentException('The delimiter to explode on must not be empty.');
         }
@@ -581,7 +580,6 @@ class Stringable
      */
     public function __call($method, array $parameters)
     {
-        // A Str macro, or any public Str helper taking the string first.
         if (array_key_exists($method, Str::$macros)) {
             $callable = Str::$macros[$method];
         } elseif (is_callable(['System\\Str', $method]) && method_exists('System\\Str', $method)) {

@@ -83,7 +83,6 @@ class File extends Driver
     public function has_overlapping($name, $queue = 'default')
     {
         $name = Str::slug($name);
-        // Running jobs too: a claimed file is renamed, '...job.php.<expiry>.reserved.php'.
         $files = glob($this->path.$name.'__*.job.php*');
 
         if (empty($files)) {
@@ -179,7 +178,6 @@ class File extends Driver
         $this->processed = 0;
         $this->recover();
 
-        // Exclude failed jobs
         $files = array_filter((array) glob($this->path.'*.job.php'), function ($file) {
             return strpos(basename($file), 'failed__') !== 0;
         });

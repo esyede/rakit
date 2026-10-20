@@ -109,8 +109,9 @@ class Validator
     protected static $parameterized = [
         'after', 'after_or_equal', 'after_or_equals', 'before', 'before_or_equal', 'before_or_equals',
         'between', 'count', 'countmax', 'countmin', 'date_equals', 'date_format', 'different', 'digits',
-        'exclude_if', 'exclude_unless', 'exclude_with', 'exclude_without', 'exists', 'gt', 'gte', 'in_array', 'lt', 'lte', 'max', 'max_digits', 'min', 'min_digits',
-        'multiple_of', 'required_if', 'required_unless', 'required_with', 'same', 'size', 'unique',
+        'exclude_if', 'exclude_unless', 'exclude_with', 'exclude_without', 'exists', 'gt', 'gte', 'in_array',
+        'lt', 'lte', 'max', 'max_digits', 'min', 'min_digits', 'multiple_of', 'required_if', 'required_unless',
+        'required_with', 'same', 'size', 'unique',
     ];
 
     /**
@@ -123,7 +124,6 @@ class Validator
     public function __construct(array $attributes, array $rules, array $messages = [])
     {
         foreach ($rules as $key => &$rule) {
-            // (array) on a closure gives an empty array, so wrap a lone closure rule.
             $rule = is_string($rule) ? explode('|', $rule) : (($rule instanceof \Closure) ? [$rule] : (array) $rule);
         }
 
@@ -353,10 +353,7 @@ class Validator
             }
 
             foreach ($this->expand($attribute) as $target) {
-                $expanded[$target] = isset($expanded[$target])
-                    ? array_merge($expanded[$target], $set)
-                    : $set;
-
+                $expanded[$target] = isset($expanded[$target]) ? array_merge($expanded[$target], $set) : $set;
                 $this->inherit_messages($attribute, $target);
             }
         }
@@ -465,7 +462,6 @@ class Validator
             if (is_null($message)) {
                 $message = $this->message($attribute, 'closure');
             } elseif (preg_match('/^[a-z0-9_-]+(?:\.[a-z0-9_-]+)+$/i', $message)) {
-                // Only a dotted key is looked up: a sentence is never a language key.
                 $key = Package::prefix($this->package).$message;
 
                 if (Lang::has($key, $this->language)) {
@@ -711,7 +707,6 @@ class Validator
             return false;
         }
 
-        // '==' is intentionally used for loose comparison.
         return $this->size($attribute, $value) == $parameters[0];
     }
 
@@ -1172,9 +1167,7 @@ class Validator
      */
     protected function validate_in_array($attribute, $value, array $parameters)
     {
-        // 'colors.*' names the values of 'colors', which is the array to look in.
         $other = Arr::get($this->attributes, rtrim(rtrim($parameters[0], '*'), '.'));
-
         return is_array($other) && in_array($value, $other);
     }
 
@@ -1388,7 +1381,6 @@ class Validator
      */
     protected function validate_unique($attribute, $value, array $parameters)
     {
-        // An array would reach the query as a binding and fail with a 500.
         if (! is_scalar($value)) {
             return false;
         }
@@ -1452,7 +1444,9 @@ class Validator
     {
         foreach ($names as $name) {
             if (! preg_match('/^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?$/', (string) $name)) {
-                throw new \InvalidArgumentException(sprintf("Invalid table or column name in the '%s' rule: %s", $rule, $name));
+                throw new \InvalidArgumentException(
+                    sprintf("Invalid table or column name in the '%s' rule: %s", $rule, $name)
+                );
             }
         }
     }
@@ -1472,8 +1466,6 @@ class Validator
      */
     public static function unique_rule($table, $column = null, $ignore = null, $id_column = 'id')
     {
-        // CSV quoting, as parse() reads it: a quote is doubled. A trailing backslash
-        // would escape the closing quote, and no real ID ends with one.
         $quote = function ($value) {
             $value = (string) $value;
 
@@ -1577,10 +1569,7 @@ class Validator
             return false;
         }
 
-        // A DNS lookup, as Laravel does. Requesting the URL let any user make the
-        // server reach internal hosts (169.254.169.254, 10.x) and read the result.
         $host = parse_url($url, PHP_URL_HOST);
-
         return is_string($host) && '' !== $host && (checkdnsrr($host, 'A') || checkdnsrr($host, 'AAAA'));
     }
 
@@ -1720,8 +1709,6 @@ class Validator
             return false;
         }
 
-        // Read the upload itself: PHP keeps it in the system temp folder, which the
-        // Storage path checks refuse, so going through Storage::is() always threw.
         $finfo = @finfo_open(FILEINFO_MIME_TYPE);
         $mime = $finfo ? @finfo_file($finfo, $value['tmp_name']) : false;
         $finfo && PHP_VERSION_ID < 80100 && @finfo_close($finfo);

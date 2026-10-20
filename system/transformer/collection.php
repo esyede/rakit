@@ -64,7 +64,6 @@ class Collection extends Transformer implements \Countable, \IteratorAggregate
     {
         $resource = $this->resource;
 
-        // Paginator results may be a collection or a plain array; both read the same below.
         if ($resource instanceof Paginator) {
             $resource = $resource->results;
         }

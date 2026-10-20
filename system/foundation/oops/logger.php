@@ -101,7 +101,6 @@ class Logger
             ? $this->getExceptionFile($message)
             : null;
 
-        // Written through the Log class, so the configured log channel applies here too.
         $levels = [
             self::DEBUG => 'debug',
             self::INFO => 'info',
@@ -113,8 +112,9 @@ class Logger
         $level = isset($levels[$priority]) ? $levels[$priority] : 'error';
 
         if ($excfile) {
-            // Passed as context, so the JSON format keeps the trace structured.
-            \System\Log::log($level, ('' === (string) $message->getMessage()) ? get_class($message) : $message->getMessage(), ['exception' => $message]);
+            \System\Log::log($level, ('' === (string) $message->getMessage())
+                ? get_class($message)
+                : $message->getMessage(), ['exception' => $message]);
         } else {
             \System\Log::log($level, static::formatText($message));
         }
@@ -261,14 +261,12 @@ class Logger
             $snooze = is_numeric($this->emailSnooze) ? (int) $this->emailSnooze : (strtotime($this->emailSnooze) - time());
             $marker = rtrim($this->directory, '\\/') . DIRECTORY_SEPARATOR . 'email-sent';
 
-            // Long-running workers would otherwise see a stale modification time.
             clearstatcache();
 
             if (is_file($marker) && filemtime($marker) + $snooze >= time()) {
                 return false;
             }
 
-            // Marked before sending, so a failing mailer is not retried on every error either.
             if (! (is_file($marker) ? is_writable($marker) : is_writable($this->directory))
                 || false === @file_put_contents($marker, 'sent')
             ) {
@@ -320,8 +318,6 @@ class Logger
         $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : php_uname('n');
         $host = preg_replace('#[^\w.-]+#', '', $host);
         $recipients = array_values(array_filter(array_map('trim', explode(',', (string) $email)), 'strlen'));
-
-        // A new driver instance, since the shared one may hold an email the application was composing.
         $drivers = \System\Email::$drivers;
         \System\Email::$drivers = [];
 
@@ -358,7 +354,9 @@ class Logger
      */
     protected static function formatValueForRakitLog($value, array &$objects = [], array &$arrays = [])
     {
-        $exception = (PHP_VERSION_ID < 70000) ? ($value instanceof \Exception) : ($value instanceof \Throwable || $value instanceof \Exception);
+        $exception = (PHP_VERSION_ID < 70000)
+            ? ($value instanceof \Exception)
+            : ($value instanceof \Throwable || $value instanceof \Exception);
 
         if ($exception) {
             return static::formatExceptionForRakitLog($value);
@@ -412,7 +410,14 @@ class Logger
      */
     protected static function formatExceptionForRakitLog($e)
     {
-        $output = sprintf('[object] (%s(code: %s): %s at %s:%s)', get_class($e), $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+        $output = sprintf(
+            '[object] (%s(code: %s): %s at %s:%s)',
+            get_class($e),
+            $e->getCode(),
+            $e->getMessage(),
+            $e->getFile(),
+            $e->getLine()
+        );
         return $e->getTraceAsString() ? $output . PHP_EOL . $e->getTraceAsString() : $output;
     }
 }

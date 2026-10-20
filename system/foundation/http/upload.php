@@ -7,39 +7,39 @@ defined('DS') or exit('No direct access.');
 class Upload extends \SplFileInfo
 {
     /**
-     * Upload size.
+     * Allowed extensions, e.g. ['jpg', 'png', 'pdf']. NULL allows all but the blocked ones.
      *
-     * @var int
+     * @var array|null
      */
-    private $size;
+    public static $allowed_extensions = null;
 
     /**
-     * Upload error.
+     * Allowed MIME types whitelist. Null means no MIME check beyond extension.
      *
-     * @var int
+     * @var array|null
      */
-    private $error;
+    public static $allowed_mime_types = null;
 
     /**
-     * Upload MIME type.
+     * Max file size in bytes. Null means use upload_max_filesize.
      *
-     * @var string
+     * @var int|null
      */
-    private $mimeType;
+    public static $max_size = null;
 
     /**
-     * Original file name.
+     * Extensions never allowed as-is: the server could execute them as code.
      *
-     * @var string
+     * @var array
      */
-    private $originalName;
-
-    /**
-     * Test mode.
-     *
-     * @var bool
-     */
-    private $test = false;
+    public static $blocked_extensions = [
+        'php', 'php2', 'php3', 'php4', 'php5', 'php7', 'php8', 'phps', 'phpt', 'pgif',
+        'phtml', 'pht', 'phar', 'inc', 'ini',
+        'cgi', 'pl', 'py', 'sh', 'bash', 'exe', 'dll', 'so', 'dylib',
+        'asp', 'aspx', 'jsp', 'jspx', 'shtml', 'shtm', 'htaccess', 'htpasswd',
+        'js', 'vbs', 'ws', 'wsh', 'ps1', 'bat', 'cmd', 'com',
+        'html', 'htm', 'xhtml', 'xht', 'xml', 'xsl', 'xslt', 'mht', 'mhtml', 'svg', 'svgz', 'swf',
+    ];
 
     /**
      * Allowed file extensions.
@@ -835,6 +835,41 @@ class Upload extends \SplFileInfo
     ];
 
     /**
+     * Test mode.
+     *
+     * @var bool
+     */
+    private $test = false;
+
+    /**
+     * Upload size.
+     *
+     * @var int
+     */
+    private $size;
+
+    /**
+     * Upload error.
+     *
+     * @var int
+     */
+    private $error;
+
+    /**
+     * Upload MIME type.
+     *
+     * @var string
+     */
+    private $mimeType;
+
+    /**
+     * Original file name.
+     *
+     * @var string
+     */
+    private $originalName;
+
+    /**
      * Gather informations of uploaded file via the $_FILES global variable.
      *
      * @param string $path
@@ -1104,41 +1139,6 @@ class Upload extends \SplFileInfo
     {
         return (UPLOAD_ERR_OK === $this->error);
     }
-
-    /**
-     * Extensions never allowed as-is: the server could execute them as code.
-     *
-     * @var array
-     */
-    public static $blocked_extensions = [
-        'php', 'php2', 'php3', 'php4', 'php5', 'php7', 'php8', 'phps', 'phpt', 'pgif',
-        'phtml', 'pht', 'phar', 'inc', 'ini',
-        'cgi', 'pl', 'py', 'sh', 'bash', 'exe', 'dll', 'so', 'dylib',
-        'asp', 'aspx', 'jsp', 'jspx', 'shtml', 'shtm', 'htaccess', 'htpasswd',
-        'js', 'vbs', 'ws', 'wsh', 'ps1', 'bat', 'cmd', 'com',
-        'html', 'htm', 'xhtml', 'xht', 'xml', 'xsl', 'xslt', 'mht', 'mhtml', 'svg', 'svgz', 'swf',
-    ];
-
-    /**
-     * Allowed extensions, e.g. ['jpg', 'png', 'pdf']. NULL allows all but the blocked ones.
-     *
-     * @var array|null
-     */
-    public static $allowed_extensions = null;
-
-    /**
-     * Allowed MIME types whitelist. Null means no MIME check beyond extension.
-     *
-     * @var array|null
-     */
-    public static $allowed_mime_types = null;
-
-    /**
-     * Max file size in bytes. Null means use upload_max_filesize.
-     *
-     * @var int|null
-     */
-    public static $max_size = null;
 
     /**
      * Validate file before moving.

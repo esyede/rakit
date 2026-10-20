@@ -80,7 +80,6 @@ class Helpers
             $line = 1;
         }
 
-        // Collectors record short, base-relative paths; the IDE needs an absolute one.
         $path = str_replace('\\', '/', $file);
         $isAbsolute = ('' !== $path && ('/' === $path[0] || preg_match('#^[a-zA-Z]:/#', $path)));
         if (! $isAbsolute && function_exists('path')) {
@@ -90,9 +89,7 @@ class Helpers
             }
         }
 
-        // Keep the separators unencoded so vscode://file/... still resolves.
         $encoded = str_replace('%2F', '/', rawurlencode($path));
-
         return str_replace(['%file%', '%line%'], [(string) $encoded, (string) $line], $template);
     }
 

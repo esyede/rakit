@@ -46,7 +46,6 @@ class Migrator extends Command
      */
     public function run(array $arguments = [])
     {
-        // Create the migrations table automatically if it doesn't exist.
         if (! Schema::has_table('rakit_migrations')) {
             $this->install();
         }

@@ -92,8 +92,6 @@ class Cookie
             throw new \InvalidArgumentException('The cookie name cannot be empty.');
         }
 
-        // The characters setcookie() refuses, for the same reason: a separator or line
-        // break ends the attribute early. Checked here so it also holds for workers.
         if (! is_null($path) && preg_match('/[,; \t\r\n\013\014]/', $path)) {
             throw new \InvalidArgumentException(sprintf("The cookie path '%s' contains invalid characters.", $path));
         }

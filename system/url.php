@@ -321,7 +321,6 @@ class URL
         foreach ($parameters as $parameter) {
             if (! is_null($parameter)) {
                 $uri = preg_replace_callback('/\(.+?\)/', function ($match) use ($parameter) {
-                    // A model stands for its key, or the column its (:name) binding uses.
                     if ($parameter instanceof Database\Facile\Model) {
                         $name = preg_match('/^\(:([a-zA-Z0-9_]+)\??\)$/', ltrim($match[0], '/'), $token) ? $token[1] : null;
                         return (string) Routing\Route::route_key($parameter, $name);

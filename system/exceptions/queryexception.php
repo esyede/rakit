@@ -40,9 +40,9 @@ class QueryException extends \PDOException
         $this->connection = $connection;
         $this->sql = $sql;
         $this->bindings = $bindings;
+
         parent::__construct($this->formatMessage($connection, $sql, $bindings, $previous), 0, $previous);
 
-        // Keep the SQLSTATE and driver error: the constructor only accepts an integer code.
         $this->code = $previous->getCode();
 
         if ($previous instanceof \PDOException) {

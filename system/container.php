@@ -104,7 +104,6 @@ class Container
         if ($tracked && isset(static::$building[$type])) {
             $chain = implode(' -> ', array_keys(static::$building));
             static::$building = [];
-
             throw new \Exception(sprintf('Circular dependency while resolving: %s (%s)', $type, $chain));
         }
 

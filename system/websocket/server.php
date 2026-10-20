@@ -86,11 +86,11 @@ class Server
     public function __construct($address)
     {
         $this->config = Config::get('websocket');
-
-        // Older config files predate this limit, so never leave it unbounded.
+.
         if (! isset($this->config['max_payload_size'])) {
             $this->config['max_payload_size'] = 10485760;
         }
+
         $dsn = str_replace('tcp://', '', $address);
         $dsn = (strpos($dsn, '://') === false) ? 'tcp://'.$dsn : $dsn;
         $context = stream_context_create(['socket' => ['so_reuseaddr' => true]]);
@@ -432,8 +432,6 @@ class Server
             $response = 'HTTP/1.1 426 Upgrade Required'.CRLF.'Sec-WebSocketVersion: 13';
         }
 
-        // The application's own broadcasts come from the server side, with no browser origin;
-        // they carry no session and each message must be signed (see publish_signature()).
         $publisher = isset($headers['get']) && static::is_publisher($headers['get']);
 
         if (
@@ -504,9 +502,6 @@ class Server
             return in_array($origin, $this->config['allowed_origins']);
         }
 
-        // No list: same host only, the port aside (the socket listens on its own
-        // port). Accepting every origin let any site open a socket with the
-        // visitor's cookies.
         $origin = parse_url((string) $origin, PHP_URL_HOST);
         $host = trim(preg_replace('/:\d+$/', '', trim((string) $host)), '[]');
         $origin = is_string($origin) ? trim($origin, '[]') : '';

@@ -277,7 +277,10 @@ class Request
         $method = (string) $request->server->get('REQUEST_METHOD', 'GET');
 
         if (
-            (0 === strpos($type, 'application/x-www-form-urlencoded') || (0 === strpos($httpType, 'application/x-www-form-urlencoded')))
+            (
+                0 === strpos($type, 'application/x-www-form-urlencoded')
+                || (0 === strpos($httpType, 'application/x-www-form-urlencoded'))
+            )
             && in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH'])
         ) {
             parse_str($request->getContent(), $data);
@@ -1000,15 +1003,10 @@ class Request
             $this->method = strtoupper((string) $this->server->get('REQUEST_METHOD', 'GET'));
 
             if ('POST' === $this->method) {
-                // From the body only: a '?_method=DELETE' on a link or a form action
-                // would otherwise turn a plain POST into another method.
                 $method = $this->request->get('_method', 'POST');
-                // X-Http-Method-Override is opt-in: it spoofs the method, so access
-                // control should use real_method().
                 $allow_header_override = false;
 
                 try {
-                    // Use Config if available, otherwise default to false (secure)
                     if (class_exists('\System\Config')) {
                         $allow_header_override = (bool) \System\Config::get('application.allow_method_override', false);
                     }
@@ -1431,7 +1429,6 @@ class Request
         } elseif (basename((string) $this->server->get('PHP_SELF')) === $filename) {
             $baseUrl = (string) $this->server->get('PHP_SELF');
         } elseif (basename((string) $this->server->get('ORIG_SCRIPT_NAME')) === $filename) {
-            // Compatibility with 1and1.com (ionos.com) shared hosting
             $baseUrl = (string) $this->server->get('ORIG_SCRIPT_NAME');
         } else {
             $path = (string) $this->server->get('PHP_SELF', '');

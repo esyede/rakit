@@ -125,7 +125,6 @@ class Redis extends Driver
             $current = $this->recount($key, $minutes, $by);
         }
 
-        // A counter INCRBY just created has no expiry yet.
         /** @disregard */
         if (-1 === (int) $this->redis->ttl($this->key.$key)) {
             /** @disregard */
@@ -196,7 +195,6 @@ class Redis extends Driver
     public function release_lock($name, $owner)
     {
         $script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-
         /** @disregard */
         return 1 === (int) $this->redis->eval($script, 1, $this->key.'lock:'.$name, serialize((string) $owner));
     }

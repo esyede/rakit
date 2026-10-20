@@ -398,7 +398,6 @@ class Query
             throw new \InvalidArgumentException(sprintf('Unsupported SQL operator: %s', $operator));
         }
 
-        // EXISTS beats counting for "owns at least one" / "owns none".
         if ('>=' === $operator && 1 === $count) {
             $this->table->where_exists($sub, $connector);
             return $this;
@@ -710,7 +709,6 @@ class Query
                 $sub->select([new Expression('COUNT(*)')]);
                 $alias = Str::snake((string) $relationship).'_count';
             } else {
-                // Qualified with the related table: the subquery may join others.
                 $related = $this->resolve_relationship($relationship)->model->table();
                 $target = (false === strpos((string) $column, '.')) ? $related.'.'.$column : $column;
                 $sub->select([new Expression($function.'('.$sub->grammar->wrap($target).')')]);
@@ -726,8 +724,6 @@ class Query
 
             $sub_sql = $sub->grammar->select($sub);
             $wrapped = $grammar->wrap($alias);
-
-            // CASE WHEN, not a bare EXISTS: SQL Server takes no boolean in a select list.
             $sql = ('EXISTS' === $function)
                 ? 'CASE WHEN EXISTS (' . $sub_sql . ') THEN 1 ELSE 0 END AS ' . $wrapped
                 : '(' . $sub_sql . ') AS ' . $wrapped;
@@ -1055,7 +1051,6 @@ class Query
             $models[] = $this->make($model, $result);
         }
 
-        // Fetched together: lazy loading one of them would run a query per model.
         if (count($models) > 1) {
             foreach ($models as $instance) {
                 $instance->fetched_with_others = true;
@@ -1110,8 +1105,6 @@ class Query
         $query = $this->resolve_relationship($relationship);
 
         if (method_exists($query, 'eager_load')) {
-            // The constraints and nested relationships apply here too: a tenant or
-            // visibility filter in with(['tags' => ...]) must never be skipped.
             $query->eager_load($results, $relationship, $constraints, $this->nested_with($relationship));
             return;
         }
@@ -1164,7 +1157,6 @@ class Query
                 list($relationship, $constraints) = [$constraints, null];
             }
 
-            // 'posts.comments' loads posts too: each parent comes before its child.
             $segments = explode('.', (string) $relationship);
 
             for ($i = 1, $count = count($segments); $i < $count; ++$i) {
@@ -1313,7 +1305,6 @@ class Query
      */
     public function __call($method, array $parameters)
     {
-        // A local scope, chained after another call: User::active()->verified().
         if ($this->model && method_exists($this->model, 'scope_'.$method)) {
             call_user_func_array([$this->model, 'scope_'.$method], array_merge([$this], $parameters));
             return $this;

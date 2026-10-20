@@ -67,8 +67,6 @@ class SQLServer extends Grammar
             $columns[] = "N'".$this->quote($column->name)."'";
         }
 
-        // ALTER COLUMN fails while a default constraint is bound to the column, and the
-        // server names those constraints itself, so look them up and drop them first.
         $sql = empty($columns) ? [] : ["DECLARE @sql NVARCHAR(MAX) = N''; "
             ."SELECT @sql += N'ALTER TABLE ".$this->quote($name)." DROP CONSTRAINT ' + QUOTENAME(OBJECT_NAME([default_object_id])) + N';' "
             ."FROM sys.columns WHERE [object_id] = OBJECT_ID(N'".$this->quote($name)."') "
@@ -259,8 +257,6 @@ class SQLServer extends Grammar
             return $statements;
         }
 
-        // The server names the primary key, so look it up. EXEC() takes only literals
-        // and variables, hence the @sql variable.
         $statements[] = 'DECLARE @key sysname = (SELECT name FROM sys.indexes WHERE object_id = '
             ."OBJECT_ID(N'".$this->quote($this->wrap($table))."') AND is_primary_key = 1); "
             ."DECLARE @sql nvarchar(max) = N'".$this->quote($index)."' + QUOTENAME(@key) + N' ON ".$this->quote($catalog)."'; "
@@ -372,11 +368,7 @@ class SQLServer extends Grammar
      */
     public function drop_fulltext(Table $table, Magic $command)
     {
-        // A table has at most one fulltext index, and it has no name of its own.
-        return [
-            'DROP FULLTEXT INDEX ON '.$this->wrap($table),
-            $this->drop_fulltext_catalog($command),
-        ];
+        return ['DROP FULLTEXT INDEX ON '.$this->wrap($table), $this->drop_fulltext_catalog($command)];
     }
 
     /**

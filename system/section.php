@@ -117,7 +117,6 @@ class Section
             return '';
         }
 
-        // A leftover '@parent' had no parent content, so drop it instead of printing it.
         return str_replace('@parent', '', static::$sections[$section]);
     }
 

@@ -63,7 +63,6 @@ class Pending
         $this->name = Str::slug($name);
         $this->payload = $payload;
         $this->dispatch_at = $dispatch_at;
-        // Auto-dispatch when not chained
         register_shutdown_function(function () {
             if ($this->name) {
                 $this->execute();
@@ -121,12 +120,10 @@ class Pending
 
         $driver = Job::driver($this->driver ?: null);
 
-        // Check for overlapping
         if ($this->without_overlapping && $driver->has_overlapping($this->name, $this->queue)) {
             return false;
         }
 
-        // Add job to the queue
         $result = $driver->add(
             $this->name,
             $this->payload,
@@ -135,9 +132,7 @@ class Pending
             $this->without_overlapping
         );
 
-        // Prevent double dispatch
         $this->name = null;
-
         return $result;
     }
 

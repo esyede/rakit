@@ -79,8 +79,6 @@ trait Macroable
         }
 
         $macro = static::$macros[$method];
-        // __CLASS__ in a trait corrupts PHP 5.4.0's constant table; get_class() does the
-        // same job there, but is deprecated without an argument since 8.3.
         $scope = (PHP_VERSION_ID < 50500) ? get_class() : __CLASS__;
         $macro = ($macro instanceof \Closure) ? \Closure::bind($macro, null, $scope) : $macro;
         return call_user_func_array($macro, $parameters);
@@ -101,7 +99,6 @@ trait Macroable
         }
 
         $macro = static::$macros[$method];
-        // See __callStatic() for why __CLASS__ is not used on PHP 5.4.
         $scope = (PHP_VERSION_ID < 50500) ? get_class() : __CLASS__;
         $macro = ($macro instanceof \Closure) ? $macro->bindTo($this, $scope) : $macro;
         return call_user_func_array($macro, $parameters);

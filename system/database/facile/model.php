@@ -392,8 +392,6 @@ abstract class Model implements \JsonSerializable
                 continue;
             }
 
-            // Column names are case-insensitive on most drivers, and a qualified or
-            // quoted key ("users.is_admin", "`is_admin`") would slip past the list.
             if (
                 is_array(static::$guarded)
                 && (in_array('*', static::$guarded)
@@ -1788,8 +1786,6 @@ abstract class Model implements \JsonSerializable
             $preset = $this->get_key();
             $id = $this->query()->insert_get_id($this->attributes, $this->key(), static::$sequence);
 
-            // Keep a key the caller already set (UUID, string key): the driver's last
-            // insert id would be a rowid or an unrelated sequence value.
             if (! is_null($id) && (is_null($preset) || '' === $preset)) {
                 $this->set_key($id);
             }
@@ -2057,9 +2053,7 @@ abstract class Model implements \JsonSerializable
      */
     protected function original_key()
     {
-        return array_key_exists(static::$key, $this->original)
-            ? $this->original[static::$key]
-            : $this->get_key();
+        return array_key_exists(static::$key, $this->original) ? $this->original[static::$key] : $this->get_key();
     }
 
     /**

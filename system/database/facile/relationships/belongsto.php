@@ -116,8 +116,6 @@ class BelongsTo extends Relationship
      */
     public function bind($id)
     {
-        // Framework-set, not mass-assigned: bypass $guarded, which would silently
-        // drop this through fill().
         $this->base->{$this->foreign} = $id;
         $this->base->save();
         return $this->base;

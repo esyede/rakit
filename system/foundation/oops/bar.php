@@ -305,7 +305,8 @@ class Bar
 
         if (! $rec || ! isset($rec['content'])) {
             http_response_code(404);
-            echo '<!DOCTYPE html><meta charset="utf-8"><body style="font-family:sans-serif;padding:24px">Debugbar history not found.</body>';
+            echo '<!DOCTYPE html><meta charset="utf-8">'
+                . '<body style="font-family:sans-serif;padding:24px">Debugbar history not found.</body>';
 
             return;
         }
@@ -331,9 +332,13 @@ class Bar
         '.oops-hist-banner p{margin:0;font-size:12px;color:#8b93a4}',
         '</style></head><body>',
         '<div class="oops-hist-banner"><h1>Past request &middot; ', Helpers::escapeHtml($label), '</h1>',
-        '<p>', Helpers::escapeHtml($when), (isset($meta['status']) ? ' &middot; HTTP ' . (int) $meta['status'] : ''), (isset($meta['ms']) ? ' &middot; ' . Helpers::escapeHtml($meta['ms']) . ' ms' : ''),
+        '<p>', Helpers::escapeHtml($when), (isset($meta['status'])
+            ? ' &middot; HTTP ' . (int) $meta['status']
+            : ''),
+        (isset($meta['ms']) ? ' &middot; ' . Helpers::escapeHtml($meta['ms']) . ' ms' : ''),
         '</p></div>',
-        '<script nonce="', Helpers::escapeHtml($nonce), '" src="?_oops_bar=js&amp;v=', urlencode(RAKIT_VERSION), '&amp;XDEBUG_SESSION_STOP=1"></script>',
+        '<script nonce="', Helpers::escapeHtml($nonce), '" src="?_oops_bar=js&amp;v=',
+            urlencode(RAKIT_VERSION), '&amp;XDEBUG_SESSION_STOP=1"></script>',
         '<script nonce="', Helpers::escapeHtml($nonce), '">Oops.Debug.init(', $payload, ');</script>',
         '</body></html>';
     }

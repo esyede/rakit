@@ -305,8 +305,6 @@ class Worker
             $response = Request::$route->call();
         }
 
-        // Render here, as boot.php does: an abort() inside a view then still reaches
-        // handle(), and whatever the view put in the session is saved below.
         $response->render();
 
         if (Config::get('session.driver') && Session::started()) {

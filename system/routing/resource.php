@@ -85,7 +85,6 @@ class Resource
         $this->except = isset($options['except']) ? (array) $options['except'] : [];
         $this->controller = isset($options['controller']) ? (string) $options['controller'] : null;
 
-        // Anything left is a route table of its own, replacing the default one.
         $custom = array_diff_key($options, ['only' => 0, 'except' => 0, 'controller' => 0]);
 
         if (! empty($custom)) {
@@ -194,7 +193,6 @@ class Resource
             $prefix = $this->parent ? $this->parent.'.' : '';
             $uses = $this->placeholder($options['uses']);
 
-            // A 'controller' option overrides the controller the resource is named after.
             if (! is_null($this->controller)) {
                 $uses = $this->controller.substr($uses, strpos($uses, '@'));
                 $prefix = '';

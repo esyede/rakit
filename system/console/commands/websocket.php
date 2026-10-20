@@ -87,7 +87,6 @@ class Websocket extends Command
                 'connected_at' => Carbon::now()->timestamp,
             ];
         }, $clients);
-        // A list, not an object keyed by socket.
         $message = json_encode(['type' => 'presence', 'users' => array_values($users)]);
         $this->broadcast($server, $message);
     }
@@ -211,7 +210,6 @@ class Websocket extends Command
      */
     public function connect(Client $client)
     {
-        // The application connecting to broadcast: not a visitor.
         if (Server::is_publisher($client->uri())) {
             return;
         }
@@ -341,7 +339,6 @@ class Websocket extends Command
                     return;
                 }
 
-                // Unknown commands (including the removed "disconnect") are refused.
                 return $this->reject($client, 'Unknown or invalid command');
             }
 
@@ -414,7 +411,6 @@ class Websocket extends Command
         $payload = isset($parsed['payload']) && is_string($parsed['payload']) ? $parsed['payload'] : '';
         $signature = isset($parsed['signature']) ? $parsed['signature'] : null;
 
-        // A minute either way for clock drift; older copies are not replayed.
         if (abs(time() - $time) > 60 || ! \System\Crypter::equals(Server::publish_signature($time, $payload), $signature)) {
             return $this->reject($client, 'Invalid broadcast signature');
         }
@@ -489,8 +485,6 @@ class Websocket extends Command
      */
     private function logging()
     {
-        return is_array($this->config)
-            && isset($this->config['logging_enabled'])
-            && $this->config['logging_enabled'];
+        return is_array($this->config) && isset($this->config['logging_enabled']) && $this->config['logging_enabled'];
     }
 }

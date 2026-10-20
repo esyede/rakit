@@ -220,8 +220,12 @@ class Batch
         }
 
         $batch = new static();
+        $fields = [
+            'id', 'name', 'total_jobs', 'pending_jobs', 'failed_jobs',
+            'cancelled_at', 'finished_at', 'created_at', 'allow_failures',
+        ];
 
-        foreach (['id', 'name', 'total_jobs', 'pending_jobs', 'failed_jobs', 'cancelled_at', 'finished_at', 'created_at', 'allow_failures'] as $field) {
+        foreach ($fields as $field) {
             $batch->{$field} = $state[$field];
         }
 
@@ -247,7 +251,9 @@ class Batch
      */
     public function progress()
     {
-        return ($this->total_jobs > 0) ? (int) round((($this->total_jobs - $this->pending_jobs) / $this->total_jobs) * 100) : 100;
+        return ($this->total_jobs > 0)
+            ? (int) round((($this->total_jobs - $this->pending_jobs) / $this->total_jobs) * 100)
+            : 100;
     }
 
     /**
@@ -328,7 +334,6 @@ class Batch
             $now = Carbon::now()->format('Y-m-d H:i:s');
 
             if ('succeeded' === $outcome && in_array($job, $state['failed_ids'], true)) {
-                // A failed job that job:retry ran again: no longer a failure.
                 $state['failed_ids'] = array_values(array_diff($state['failed_ids'], [$job]));
                 $state['failed_jobs'] = max(0, $state['failed_jobs'] - 1);
             } else {
@@ -354,7 +359,6 @@ class Batch
                 }
             }
 
-            // Each callback is queued once.
             $fire = array_values(array_diff(array_unique($fire), $state['fired']));
             $state['fired'] = array_merge($state['fired'], $fire);
 
@@ -382,7 +386,6 @@ class Batch
 
             $result = $change($state);
             Cache::put($key, $result[0], static::$minutes);
-
             return $result;
         });
 

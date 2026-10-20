@@ -141,7 +141,9 @@ class Header implements \IteratorAggregate, \Countable
             $values[$i] = str_replace(["\r", "\n", "\0"], '', (string) $v);
         }
 
-        $this->headers[$key] = (true === $replace || ! isset($this->headers[$key])) ? $values : array_merge($this->headers[$key], $values);
+        $this->headers[$key] = (true === $replace || ! isset($this->headers[$key]))
+            ? $values
+            : array_merge($this->headers[$key], $values);
 
         if ('cache-control' === $key) {
             $this->cacheControl = $this->parseCacheControl(isset($values[0]) ? $values[0] : '');
@@ -312,11 +314,14 @@ class Header implements \IteratorAggregate, \Countable
      */
     protected function parseCacheControl($header)
     {
-        preg_match_all('/([a-zA-Z][a-zA-Z_-]*)\s*(?:=(?:"([^"]*)"|([^ \t",;]*)))?/', $header, $matches, PREG_SET_ORDER);
+        $pattern = '/([a-zA-Z][a-zA-Z_-]*)\s*(?:=(?:"([^"]*)"|([^ \t",;]*)))?/';
+        preg_match_all($pattern, $header, $matches, PREG_SET_ORDER);
         $parsed = [];
 
         foreach ($matches as $match) {
-            $parsed[strtolower((string) $match[1])] = isset($match[3]) ? $match[3] : (isset($match[2]) ? $match[2] : true);
+            $parsed[strtolower((string) $match[1])] = isset($match[3])
+                ? $match[3]
+                : (isset($match[2]) ? $match[2] : true);
         }
 
         return $parsed;

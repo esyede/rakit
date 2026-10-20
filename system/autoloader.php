@@ -318,8 +318,6 @@ class Autoloader
     {
         $mappings = static::format_mappings($mappings, $append);
         static::$namespaces = array_merge($mappings, static::$namespaces);
-
-        // Longest prefix first, so 'Foo\' cannot shadow 'Foo\Bar\'.
         uksort(static::$namespaces, function ($left, $right) {
             return mb_strlen((string) $right, '8bit') - mb_strlen((string) $left, '8bit');
         });

@@ -179,8 +179,7 @@ class Redis
             }
         }
 
-        $command = '*'.(count($arguments) + 1).CRLF
-            .'$'.mb_strlen($method, '8bit').CRLF.$method.CRLF;
+        $command = '*'.(count($arguments) + 1).CRLF .'$'.mb_strlen($method, '8bit').CRLF.$method.CRLF;
 
         foreach ($arguments as $argument) {
             $command .= '$'.mb_strlen($argument, '8bit').CRLF.$argument.CRLF;

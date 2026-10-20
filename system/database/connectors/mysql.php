@@ -46,8 +46,6 @@ class MySQL extends Connector
         $dsn .= isset($config['port']) ? ';port='.$config['port'] : '';
         $dsn .= isset($config['unix_socket']) ? ';unix_socket='.$config['unix_socket'] : '';
 
-        // In the DSN too: SET NAMES changes the server side only, while PDO::quote()
-        // escapes with the client library's charset, unsafe for GBK, Big5 or SJIS.
         if (isset($config['charset']) && preg_match('/^[A-Za-z0-9_-]+$/', (string) $config['charset'])) {
             $dsn .= ';charset='.$config['charset'];
         }

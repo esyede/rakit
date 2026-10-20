@@ -219,7 +219,6 @@ abstract class Driver
         $payloads = is_array($payloads) ? $payloads : [];
         $batch = isset($payloads['rakit_batch']) ? (array) $payloads['rakit_batch'] : null;
 
-        // The rest of a cancelled batch is dropped, not run.
         if ($batch && ($found = Batch::find($batch[0])) && $found->cancelled()) {
             $this->complete($job);
             $this->log(sprintf('Job skipped: %s - #%s (batch cancelled)', $name, $id));
@@ -238,10 +237,8 @@ abstract class Driver
                 $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $name, $id, $attempts));
                 $this->complete($job);
                 Batch::$current = null;
-
                 Job::advance($payloads);
                 $batch && Batch::record($batch[0], $batch[1], 'succeeded');
-
                 return true;
             } catch (\Throwable $e) {
                 // Handled below.

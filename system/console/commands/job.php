@@ -49,7 +49,6 @@ class Job extends Command
      */
     public function runall(array $arguments = [])
     {
-        // The console strips every --option before the command is called.
         $retries = (int) get_cli_option('retries', 1);
         $sleep = (int) get_cli_option('sleep', 0);
         $queues = get_cli_option('queue');
@@ -90,7 +89,6 @@ class Job extends Command
         $done = 0;
         $stop = false;
 
-        // SIGTERM / SIGINT finish the current job, then stop, so a deploy never cuts one in half.
         if (function_exists('pcntl_signal')) {
             $handler = function () use (&$stop) {
                 $stop = true;
@@ -107,7 +105,6 @@ class Job extends Command
             $driver->runall($retries, $sleep_ms, $queues);
             $done += $driver->processed;
 
-            // The query log would grow with every job a long-running worker runs.
             if (class_exists('System\Database\Connection', false)) {
                 \System\Database\Connection::$queries = [];
             }

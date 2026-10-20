@@ -229,8 +229,6 @@ class View implements \ArrayAccess
         $directory = Str::finish($directory, DS);
         $key = $directory.$view;
 
-        // A partial included in a loop is looked up once. Only hits are kept, and
-        // the worker bridge empties them per request, so new files are still found.
         if (isset(static::$files[$key])) {
             return static::$files[$key];
         }
@@ -348,10 +346,7 @@ class View implements \ArrayAccess
             Blade::forget_onces();
         }
 
-        // Track view rendering for debugger
         if (
-            // Debugger first, without autoload: in production (and on the CLI, where it
-            // is never booted) the collectors are not even loaded.
             class_exists('\System\Foundation\Oops\Debugger', false)
             && ! \System\Foundation\Oops\Debugger::$productionMode
         ) {

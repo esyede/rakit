@@ -317,7 +317,6 @@ class Gate
         $policy = isset($arguments[0]) ? static::get_policy_for($arguments[0]) : null;
 
         if ($policy) {
-            // A class name only picks the policy ('create', 'Post'); an instance is passed on.
             if (is_string($arguments[0])) {
                 array_shift($arguments);
             }

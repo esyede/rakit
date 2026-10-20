@@ -65,7 +65,10 @@ class Base
     public static function randomNumber($nbDigits = null, $strict = false)
     {
         if (! is_bool($strict)) {
-            throw new \InvalidArgumentException('randomNumber() generates numbers of fixed width. To generate numbers between two boundaries, use numberBetween() instead.');
+            throw new \InvalidArgumentException(
+                'randomNumber() generates numbers of fixed width. '
+                    . 'To generate numbers between two boundaries, use numberBetween() instead.'
+            );
         }
 
         if (null === $nbDigits) {

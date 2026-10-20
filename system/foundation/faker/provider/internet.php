@@ -25,7 +25,11 @@ class Internet extends Base
      *
      * @var array
      */
-    protected static $userNameFormats = ['{{lastName}}.{{firstName}}', '{{firstName}}.{{lastName}}', '{{firstName}}##', '?{{lastName}}'];
+    protected static $userNameFormats = [
+        '{{lastName}}.{{firstName}}',
+        '{{firstName}}.{{lastName}}',
+        '{{firstName}}##', '?{{lastName}}',
+    ];
 
     /**
      * The list of email formats.
@@ -40,9 +44,15 @@ class Internet extends Base
      * @var array
      */
     protected static $urlFormats = [
-        'http://www.{{domainName}}/', 'http://{{domainName}}/','http://www.{{domainName}}/{{slug}}', 'http://www.{{domainName}}/{{slug}}',
-        'https://www.{{domainName}}/{{slug}}', 'http://www.{{domainName}}/{{slug}}.html', 'http://{{domainName}}/{{slug}}',
-        'http://{{domainName}}/{{slug}}', 'http://{{domainName}}/{{slug}}.html', 'https://{{domainName}}/{{slug}}.html',
+        'http://www.{{domainName}}/', 'http://{{domainName}}/',
+        'http://www.{{domainName}}/{{slug}}',
+        'http://www.{{domainName}}/{{slug}}',
+        'https://www.{{domainName}}/{{slug}}',
+        'http://www.{{domainName}}/{{slug}}.html',
+        'http://{{domainName}}/{{slug}}',
+        'http://{{domainName}}/{{slug}}',
+        'http://{{domainName}}/{{slug}}.html',
+        'https://{{domainName}}/{{slug}}.html',
     ];
 
     /**
@@ -253,7 +263,9 @@ class Internet extends Base
      */
     public function userName()
     {
-        return static::transliterate(static::bothify($this->generator->parse(static::randomElement(static::$userNameFormats))));
+        return static::transliterate(static::bothify(
+            $this->generator->parse(static::randomElement(static::$userNameFormats)))
+        );
     }
 
     /**
@@ -363,7 +375,9 @@ class Internet extends Base
      */
     public static function localIpv4()
     {
-        return (0 === static::numberBetween(0, 1)) ? long2ip(static::numberBetween(167772160, 184549375)) : long2ip(static::numberBetween(3232235520, 3232301055));
+        return (0 === static::numberBetween(0, 1))
+            ? long2ip(static::numberBetween(167772160, 184549375))
+            : long2ip(static::numberBetween(3232235520, 3232301055));
     }
 
     /**

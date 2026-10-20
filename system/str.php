@@ -482,7 +482,6 @@ class Str
             }
         }
 
-        // Openssl failed, try /dev/urandom (unix)
         if ($unix) {
             $urandom = true;
             $basedir = ini_get('open_basedir');
@@ -513,7 +512,6 @@ class Str
             }
         }
 
-        // /dev/urandom still failed, try CAPICOM (windows)
         if ($windows && class_exists('\COM', false)) {
             try {
                 $com = new \COM('CAPICOM.Utilities.1');
@@ -539,7 +537,6 @@ class Str
             }
         }
 
-        // Nothing left, give up.
         throw new \Exception('There is no suitable CSPRNG installed on your system');
     }
 
@@ -1363,7 +1360,6 @@ class Str
     public static function pad_both($value, $length, $pad = ' ')
     {
         $short = max(0, (int) $length - mb_strlen((string) $value, 'UTF-8'));
-
         return static::padding($pad, (int) floor($short / 2)).$value.static::padding($pad, (int) ceil($short / 2));
     }
 
@@ -1495,7 +1491,6 @@ class Str
      */
     public static function take($string, $limit)
     {
-        // A length, never NULL: before PHP 5.4.8 a NULL length meant zero.
         $string = (string) $string;
 
         return ($limit < 0)

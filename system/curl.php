@@ -663,12 +663,9 @@ class Curl
             CURLOPT_HEADER => true,
             CURLOPT_SSL_VERIFYPEER => (bool) static::$verify_peer,
             CURLOPT_SSL_VERIFYHOST => ((int) static::$verify_host > 0) ? 2 : 0,
-            // Accept-Encoding, not a charset: '' asks for every encoding libcurl knows.
             CURLOPT_ENCODING => '',
         ];
 
-        // Keep libcurl on HTTP: redirects bypass encode_url(), so a Location of
-        // 'file:///etc/passwd' would otherwise be fetched and handed to the caller.
         if (defined('CURLPROTO_HTTP') && defined('CURLPROTO_HTTPS')) {
             $protocols = CURLPROTO_HTTP | CURLPROTO_HTTPS;
 
@@ -681,7 +678,6 @@ class Curl
             }
         }
 
-        // An unset timeout is 30 seconds: a hung upstream must not hold a worker forever.
         $timeout = is_int(static::$socket_timeout) ? static::$socket_timeout : 30;
         curl_setopt_array(static::$handler, static::merge_options($defaults, static::$curl_options));
         curl_setopt(static::$handler, CURLOPT_TIMEOUT, $timeout);
@@ -718,7 +714,6 @@ class Curl
         $error = curl_error(static::$handler);
         $info = static::info();
 
-        // Record the request on the debug bar's HTTP client panel.
         if (class_exists('\System\Foundation\Oops\Debugger', false)
             && ! \System\Foundation\Oops\Debugger::$productionMode) {
             \System\Foundation\Oops\Collectors::trackHttp(

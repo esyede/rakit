@@ -81,7 +81,6 @@ class Concurrency
     {
         $children = [];
 
-        // ponytail: one child per closure at once, no pool; chunk the tasks for hundreds.
         foreach ($tasks as $key => $task) {
             $file = tempnam(sys_get_temp_dir(), 'rakit-concurrency-');
             $pid = pcntl_fork();
@@ -129,7 +128,6 @@ class Concurrency
      */
     protected static function child(\Closure $task, $file)
     {
-        // The parent's database connections are its own: the child opens fresh ones.
         static::$inherited[] = Database::$connections;
         Database::$connections = [];
 
@@ -149,8 +147,6 @@ class Concurrency
 
         file_put_contents($file, $data);
 
-        // End without shutdown functions or destructors: they belong to the parent (queued
-        // jobs it dispatches, its connections, its session).
         if (function_exists('posix_kill') && function_exists('posix_getpid')) {
             posix_kill(posix_getpid(), defined('SIGKILL') ? SIGKILL : 9);
         }

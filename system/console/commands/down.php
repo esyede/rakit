@@ -29,7 +29,6 @@ class Down extends Command
         echo $this->warning('The application is now in maintenance mode.');
 
         if ($secret) {
-            // No request on the CLI, so no host to build a full URL from.
             echo $this->info('Bypass it by visiting /'.ltrim($secret, '/').' on the site.');
         }
     }

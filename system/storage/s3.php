@@ -200,7 +200,8 @@ class S3
                 $files[] = ('' === $root) ? $key : substr($key, strlen($root));
             }
 
-            $token = preg_match('#<IsTruncated>true</IsTruncated>#', $xml) && preg_match('#<NextContinuationToken>(.*?)</NextContinuationToken>#s', $xml, $next)
+            $token = (preg_match('#<IsTruncated>true</IsTruncated>#', $xml)
+                    && preg_match('#<NextContinuationToken>(.*?)</NextContinuationToken>#s', $xml, $next))
                 ? html_entity_decode($next[1], ENT_QUOTES | ENT_XML1, 'UTF-8')
                 : null;
         } while (! is_null($token));
@@ -383,7 +384,6 @@ class S3
             $host = 's3.'.$this->config['region'].'.amazonaws.com';
         }
 
-        // Path style for MinIO and other S3-compatible servers, and for bucket names with dots.
         if ($this->config['path_style'] || false !== strpos($bucket, '.')) {
             return [$host, '/'.$bucket];
         }

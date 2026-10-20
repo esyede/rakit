@@ -19,7 +19,6 @@ class Single extends Driver
         $directory = dirname($file);
         $exists = is_file($file);
 
-        // Checked upfront: a failing write warns, which "scream" turns into an error page.
         if ($exists ? ! is_writable($file) : ! (is_dir($directory) && is_writable($directory))) {
             throw new \RuntimeException(sprintf('Log file is not writable: %s', $file));
         }

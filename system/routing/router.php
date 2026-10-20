@@ -211,7 +211,6 @@ class Router
             $uri = ltrim(str_replace('(:package)', (string) static::$package, $uri), '/');
             $uri = ('' === $uri) ? '/' : $uri;
 
-            // Handle prefix from group
             if (! is_null(static::$group) && isset(static::$group['prefix'])) {
                 $prefix = trim(static::$group['prefix'], '/');
                 if (! empty($prefix)) {
@@ -420,7 +419,6 @@ class Router
             return static::$names[$name];
         }
 
-        // URL::home() asks for 'home' on every call: remember that there is none.
         if (isset(static::$misses['name:'.$name])) {
             return null;
         }
@@ -564,8 +562,6 @@ class Router
             $route = static::uri($route_key);
 
             if (! isset(static::$compiled[$route])) {
-                // The literal text before the first wildcard, without the slash an
-                // optional wildcard starts with: 'users/(:num?)' still matches 'users'.
                 $prefix = rtrim((string) substr($route, 0, (int) strpos($route, '(')), '/');
                 static::$compiled[$route] = (false !== strpos($route, '('))
                     ? ['#^'.static::wildcards($route).'$#u', $prefix, strlen($prefix)]
@@ -574,7 +570,6 @@ class Router
 
             $compiled = static::$compiled[$route];
 
-            // A cheap prefix comparison skips most routes before running a regex.
             if (
                 false !== $compiled
                 && (0 === $compiled[2] || 0 === strncmp($uri, $compiled[1], $compiled[2]))
@@ -621,7 +616,6 @@ class Router
         $tokens = array_merge(static::$optional, static::$patterns);
         $names = implode("\0", array_keys($tokens));
 
-        // Built once per set of tokens, not once per route: Route::bind() adds tokens.
         if (is_null(static::$splitter) || static::$splitter[0] !== $names) {
             static::$splitter = [$names, '#('.implode('|', array_map(function ($token) {
                 return preg_quote($token, '#');

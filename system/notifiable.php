@@ -45,7 +45,6 @@ trait Notifiable
      */
     public function mark_notifications_as_read($ids = null)
     {
-        // No ORDER BY: some databases refuse one on an UPDATE.
         $query = $this->notification_query()->where_null('read_at');
 
         if (! is_null($ids)) {

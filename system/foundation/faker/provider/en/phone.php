@@ -21,14 +21,18 @@ class Phone extends BasePhone
      * @var array
      */
     protected static $formats = [
-        '+1-{{areaCode}}-{{exchangeCode}}-####', '+1 ({{areaCode}}) {{exchangeCode}}-####', '+1-{{areaCode}}-{{exchangeCode}}-####',
-        '+1.{{areaCode}}.{{exchangeCode}}.####', '+1{{areaCode}}{{exchangeCode}}####', '{{areaCode}}-{{exchangeCode}}-####',
-        '({{areaCode}}) {{exchangeCode}}-####', '1-{{areaCode}}-{{exchangeCode}}-####', '{{areaCode}}.{{exchangeCode}}.####',
-        '{{areaCode}}-{{exchangeCode}}-####', '({{areaCode}}) {{exchangeCode}}-####', '1-{{areaCode}}-{{exchangeCode}}-####',
-        '{{areaCode}}.{{exchangeCode}}.####', '{{areaCode}}-{{exchangeCode}}-#### x###', '({{areaCode}}) {{exchangeCode}}-#### x###',
-        '1-{{areaCode}}-{{exchangeCode}}-#### x###', '{{areaCode}}.{{exchangeCode}}.#### x###', '{{areaCode}}-{{exchangeCode}}-#### x####',
-        '({{areaCode}}) {{exchangeCode}}-#### x####', '1-{{areaCode}}-{{exchangeCode}}-#### x####', '{{areaCode}}.{{exchangeCode}}.#### x####',
-        '{{areaCode}}-{{exchangeCode}}-#### x#####', '({{areaCode}}) {{exchangeCode}}-#### x#####', '1-{{areaCode}}-{{exchangeCode}}-#### x#####',
+        '+1-{{areaCode}}-{{exchangeCode}}-####', '+1 ({{areaCode}}) {{exchangeCode}}-####',
+        '+1-{{areaCode}}-{{exchangeCode}}-####', '+1.{{areaCode}}.{{exchangeCode}}.####',
+        '+1{{areaCode}}{{exchangeCode}}####', '{{areaCode}}-{{exchangeCode}}-####',
+        '({{areaCode}}) {{exchangeCode}}-####', '1-{{areaCode}}-{{exchangeCode}}-####',
+        '{{areaCode}}.{{exchangeCode}}.####', '{{areaCode}}-{{exchangeCode}}-####',
+        '({{areaCode}}) {{exchangeCode}}-####', '1-{{areaCode}}-{{exchangeCode}}-####',
+        '{{areaCode}}.{{exchangeCode}}.####', '{{areaCode}}-{{exchangeCode}}-#### x###',
+        '({{areaCode}}) {{exchangeCode}}-#### x###', '1-{{areaCode}}-{{exchangeCode}}-#### x###',
+        '{{areaCode}}.{{exchangeCode}}.#### x###', '{{areaCode}}-{{exchangeCode}}-#### x####',
+        '({{areaCode}}) {{exchangeCode}}-#### x####', '1-{{areaCode}}-{{exchangeCode}}-#### x####',
+        '{{areaCode}}.{{exchangeCode}}.#### x####', '{{areaCode}}-{{exchangeCode}}-#### x#####',
+        '({{areaCode}}) {{exchangeCode}}-#### x#####', '1-{{areaCode}}-{{exchangeCode}}-#### x#####',
         '{{areaCode}}.{{exchangeCode}}.#### x#####',
     ];
 

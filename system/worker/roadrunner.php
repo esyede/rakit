@@ -195,7 +195,6 @@ class Roadrunner extends Bridge
             $server['HTTPS'] = 'on';
         }
 
-        // Golang keeps the Host header out of the header list.
         if (isset($url['host'])) {
             $server['HTTP_HOST'] = $url['host'].(isset($url['port']) ? ':'.$url['port'] : '');
         }
@@ -220,7 +219,6 @@ class Roadrunner extends Bridge
         $_FILES = $this->files($request->uploads);
         $_REQUEST = array_merge($_GET, $_POST);
 
-        // RoadRunner hands decoded form bodies over as JSON, so rebuild an url-encoded body for PUT and PATCH forms.
         $type = isset($server['CONTENT_TYPE']) ? $server['CONTENT_TYPE'] : '';
 
         if (! $request->parsed) {

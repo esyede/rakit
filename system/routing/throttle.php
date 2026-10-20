@@ -173,8 +173,6 @@ class Throttle
      */
     public static function key()
     {
-        // Keyed by the matched route pattern, not the literal path: 'reset/(:any)'
-        // is one bucket, so guessing a token does not get a fresh limit per guess.
         $path = Request::$route ? Request::$route->uri : trim(URI::current(), '/');
         return static::PREFIX.'.'.md5(RAKIT_KEY.'|'.$path.'|'.static::client());
     }

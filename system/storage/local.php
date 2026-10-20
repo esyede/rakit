@@ -4,9 +4,6 @@ namespace System\Storage;
 
 defined('DS') or exit('No direct access.');
 
-// Native file functions, not Storage's: the root may lie outside the application (Storage
-// refuses that), and Storage::put() drops an index.html in each directory. Paths climbing
-// out of the root are refused by clean().
 class Local
 {
     /**

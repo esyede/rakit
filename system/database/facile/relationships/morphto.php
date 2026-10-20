@@ -61,8 +61,6 @@ class MorphTo extends Relationship
 
         $type = $owner->{$this->type};
         $id = $owner->{$this->id};
-
-        // The type is read from the database: only a mapped alias or a model class.
         $class = is_null($id) ? null : \System\Database\Facile\Model::morph_resolve($type);
 
         if (is_null($class)) {
@@ -108,7 +106,6 @@ class MorphTo extends Relationship
             $query = $instance->query();
             $query->model->with = $nested;
 
-            // Applied to every related type, so it may only use columns they share.
             if (! is_null($constraints)) {
                 $query->table->where_nested($constraints);
             }

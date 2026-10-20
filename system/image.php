@@ -90,7 +90,6 @@ class Image
         $this->height = 0;
         $this->quality = $this->level($quality, 0, 100, 'quality');
 
-        // Use the resolved path: path() anchors to the project base, not the cwd.
         $this->load($this->path);
     }
 
@@ -104,7 +103,6 @@ class Image
      */
     public static function open($path, $quality = 75)
     {
-        // Free the previous image, but still load the new one: a reset instance is blank.
         if (! is_null(static::$singleton)) {
             static::$singleton->reset();
         }
@@ -132,7 +130,6 @@ class Image
         $this->exif = [];
         list($this->width, $this->height, $this->type) = getimagesize($path);
 
-        // getimagesize() reads the header only: check before GD allocates the pixels.
         if (! is_null(static::$max_pixels) && $this->width * $this->height > static::$max_pixels) {
             throw new \Exception(sprintf(
                 'Image too large: %dx%d pixels exceeds %d.',
@@ -288,7 +285,6 @@ class Image
             return $this;
         }
 
-        // Crop from center
         $this->crop($x, $y, $new_width, $new_height);
         return $this;
     }

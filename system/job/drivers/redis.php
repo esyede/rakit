@@ -60,7 +60,6 @@ class Redis extends Driver
             return [];
         }
 
-        // Already keyed by field (a client that pairs them for us).
         if (array_keys($reply) !== range(0, count($reply) - 1)) {
             return $reply;
         }
@@ -223,9 +222,7 @@ class Redis extends Driver
         $name = Str::slug($name);
         $this->processed = 0;
         $now = Carbon::now()->timestamp;
-        $lists = $queue
-            ? [$this->key.'queue_'.$queue.':'.$name]
-            : $this->redis->keys($this->key.'queue_*:'.$name);
+        $lists = $queue ? [$this->key.'queue_'.$queue.':'.$name] : $this->redis->keys($this->key.'queue_*:'.$name);
 
         if (empty($lists)) {
             $this->log('Job queue does not exist');

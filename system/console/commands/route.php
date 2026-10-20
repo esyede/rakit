@@ -51,9 +51,9 @@ class Route extends Command
             return (string) $route->response();
         }
 
-        // Middleware may short-circuit (e.g. a redirect), so show the status too.
         Request::$route = $route;
         $response = $route->call();
+
         return 'HTTP '.$response->status().PHP_EOL.$response->render();
     }
 
@@ -99,12 +99,10 @@ class Route extends Command
             }
         }
 
-        // Sort by URI
         usort($routes, function ($a, $b) {
             return strcmp($a['uri'], $b['uri']);
         });
 
-        // Display header
         echo PHP_EOL;
         echo $this->info(
             str_pad('Method', 8).' | '.str_pad('URI', 40).' | '.str_pad('Action', 30).' | '.'Name'
@@ -112,9 +110,9 @@ class Route extends Command
         echo $this->info(
             str_repeat('-', 8).'-+-'.str_repeat('-', 40).'-+-'.str_repeat('-', 30).'-+-'.str_repeat('-', 20)
         );
+
         $lists = '';
 
-        // Display routes
         foreach ($routes as $route) {
             $method = str_pad($route['method'], 8);
             $uri = str_pad($route['uri'], 40);

@@ -254,7 +254,6 @@ abstract class Mailable
         $html = $this->render();
         $email = Email::driver($this->mailer);
 
-        // The driver instance is shared: start from a clean message.
         $email->reset();
 
         if (! is_null($this->from)) {
@@ -328,7 +327,6 @@ abstract class Mailable
     protected function address($list, $address, $name)
     {
         foreach ((array) $address as $key => $value) {
-            // ['a@x.co' => 'Name'] or ['a@x.co', 'b@x.co'].
             $this->{$list}[] = is_string($key) ? [$key, $value] : [(string) $value, is_array($address) ? null : $name];
         }
 

@@ -15,7 +15,6 @@ class Errorlog extends Driver
      */
     protected function write(array $record)
     {
-        // 0: the "error_log" ini destination, 4: the SAPI logger (e.g. the web server log).
         $type = (int) $this->option('type', 0);
 
         if (0 !== $type && 4 !== $type) {

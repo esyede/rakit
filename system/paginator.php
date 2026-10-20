@@ -120,14 +120,10 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     {
         $perpage = (int) $perpage;
         $perpage = ($perpage < 1) ? 1 : $perpage;
-
         $total = (int) $total;
         $total = ($total < 0) ? 0 : $total;
-
-        // The last page is always at least 1, even when there is no result at all.
         $last = (int) ceil($total / $perpage);
         $last = ($last < 1) ? 1 : $last;
-
         $page = is_null($page) ? static::page($total, $perpage, $page_name) : (int) $page;
 
         return new static($results, $page, $total, $perpage, $last, $page_name);

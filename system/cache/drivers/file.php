@@ -131,8 +131,6 @@ class File extends Driver
     public function release_lock($name, $owner)
     {
         $result = $this->locked('lock:'.$name, function ($current) use ($owner) {
-            // Emptied rather than deleted: a worker waiting on the old file would
-            // otherwise lock a file nobody else sees.
             return ((string) $owner === $current) ? [true, false] : [false, null];
         });
 

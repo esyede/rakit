@@ -116,14 +116,17 @@ class Dates extends Base
      */
     public static function dateTimeBetween($startDate = '-30 years', $endDate = 'now')
     {
-        $startTimestamp = ($startDate instanceof \DateTime) ? $startDate->getTimestamp() : (new \DateTime($startDate))->getTimestamp();
+        $startTimestamp = ($startDate instanceof \DateTime)
+            ? $startDate->getTimestamp()
+            : (new \DateTime($startDate))->getTimestamp();
         $endTimestamp = static::getMaxTimestamp($endDate);
 
         if ($startTimestamp > $endTimestamp) {
             throw new \InvalidArgumentException('Start date must be anterior to end date.');
         }
 
-        return (new \DateTime('@'.mt_rand($startTimestamp, $endTimestamp)))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+        return (new \DateTime('@'.mt_rand($startTimestamp, $endTimestamp)))
+            ->setTimezone(new \DateTimeZone(date_default_timezone_get()));
     }
 
     /**

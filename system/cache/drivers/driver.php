@@ -32,8 +32,6 @@ abstract class Driver
         $time = (microtime(true) - $start) * 1000;
 
         if (
-            // Debugger first, without autoload: in production (and on the CLI, where it
-            // is never booted) the collectors are not even loaded.
             class_exists('\System\Foundation\Oops\Debugger', false)
             && ! \System\Foundation\Oops\Debugger::$productionMode
         ) {

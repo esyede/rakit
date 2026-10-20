@@ -166,7 +166,6 @@ abstract class Bridge
             Config::set('application.language', self::$snapshot['language']);
         }
 
-        // Everything above is framework state; packages clean their own here.
         Hook::fire('rakit.reset');
     }
 

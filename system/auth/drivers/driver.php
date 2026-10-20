@@ -244,8 +244,6 @@ abstract class Driver
             return;
         }
 
-        // A changed password logs the cookie out. Cookies written before carried the
-        // hash itself, and stay valid until they are written again.
         if (
             ! Crypter::equals($this->fingerprint($user), $password)
             && ! Crypter::equals($this->password($user), $password)

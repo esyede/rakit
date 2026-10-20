@@ -67,7 +67,6 @@ class Smtp extends Driver
             throw new \Exception('Must supply a SMTP host and port, none given.');
         }
 
-        // Set the keep alive config option
         $this->keep_alive = Arr::get($this->config, 'smtp.keep_alive', false);
         $authenticate = (
             empty($this->connection)
@@ -81,9 +80,7 @@ class Smtp extends Driver
             $this->authenticate();
         }
 
-        $retpath = empty($this->config['return_path'])
-            ? $this->config['from']['email']
-            : $this->config['return_path'];
+        $retpath = empty($this->config['return_path']) ? $this->config['from']['email'] : $this->config['return_path'];
         $retpath = static::sanitize_header($retpath);
         $this->command('MAIL FROM: <'.$retpath.'>', 250);
 
@@ -259,9 +256,7 @@ class Smtp extends Driver
         try {
             switch ($method) {
                 case 'PLAIN':
-                    $auth = base64_encode(
-                        "\0" . $this->config['smtp']['username'] . "\0" . $this->config['smtp']['password']
-                    );
+                    $auth = base64_encode("\0" . $this->config['smtp']['username'] . "\0" . $this->config['smtp']['password']);
                     $this->command('AUTH PLAIN '.$auth, 235);
                     break;
 

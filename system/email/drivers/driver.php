@@ -216,7 +216,6 @@ abstract class Driver
                     $url = (string) $url;
 
                     if (! preg_match('/(^http\:\/\/|^https\:\/\/|^\/\/|^cid\:|^data\:|^#)/Ui', $url)) {
-                        // Only files under the assets directory may be attached.
                         if (false === ($file = static::asset($url))) {
                             continue;
                         }
@@ -706,7 +705,6 @@ abstract class Driver
 
         Hook::fire('rakit.mail.sent', [$this]);
 
-        // Track sent email for the Mails panel in the debug bar.
         if (class_exists('\System\Foundation\Oops\Debugger', false)
             && ! \System\Foundation\Oops\Debugger::$productionMode) {
             \System\Foundation\Oops\Collectors::trackMail([

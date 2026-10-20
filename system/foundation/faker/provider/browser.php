@@ -105,7 +105,8 @@ class Browser extends Base
         $ver = 'Gecko/'.date('Ymd', mt_rand(strtotime('2010-1-1'), time())).' Firefox/'.mt_rand(35, 37).'.0';
 
         $platforms = [
-            '('.static::windowsPlatformToken().'; '.static::randomElement(static::$lang).'; rv:1.9.'.mt_rand(0, 2).'.20) '.$ver,
+            '('.static::windowsPlatformToken().'; '.static::randomElement(static::$lang).'; rv:1.9.'.mt_rand(0, 2)
+            .'.20) '.$ver,
             '('.static::linuxPlatformToken().'; rv:'.mt_rand(5, 7).'.0) '.$ver,
             '('.static::macPlatformToken().' rv:'.mt_rand(2, 6).'.0) '.$ver,
         ];
@@ -150,8 +151,10 @@ class Browser extends Base
     public static function opera()
     {
         $platforms = [
-            '('.static::linuxPlatformToken().'; '.static::randomElement(static::$lang).') Presto/2.'.mt_rand(8, 12).'.'.mt_rand(160, 355).' Version/'.mt_rand(10, 12).'.00',
-            '('.static::windowsPlatformToken().'; '.static::randomElement(static::$lang).') Presto/2.'.mt_rand(8, 12).'.'.mt_rand(160, 355).' Version/'.mt_rand(10, 12).'.00',
+            '('.static::linuxPlatformToken().'; '.static::randomElement(static::$lang).') Presto/2.'
+                .mt_rand(8, 12).'.'.mt_rand(160, 355).' Version/'.mt_rand(10, 12).'.00',
+            '('.static::windowsPlatformToken().'; '.static::randomElement(static::$lang).') Presto/2.'.mt_rand(8, 12)
+                .'.'.mt_rand(160, 355).' Version/'.mt_rand(10, 12).'.00',
         ];
 
         return 'Opera/'.mt_rand(8, 9).'.'.mt_rand(10, 99).' '.static::randomElement($platforms);
@@ -164,7 +167,8 @@ class Browser extends Base
      */
     public static function internetExplorer()
     {
-        return 'Mozilla/5.0 (compatible; MSIE '.mt_rand(5, 11).'.0; '.static::windowsPlatformToken().'; Trident/'.mt_rand(3, 5).'.'.mt_rand(0, 1).')';
+        return 'Mozilla/5.0 (compatible; MSIE '.mt_rand(5, 11).'.0; '.static::windowsPlatformToken()
+            .'; Trident/'.mt_rand(3, 5).'.'.mt_rand(0, 1).')';
     }
 
     /**
@@ -184,7 +188,8 @@ class Browser extends Base
      */
     public static function macPlatformToken()
     {
-        return 'Macintosh; '.static::randomElement(static::$macProcessor).' Mac OS X 10_'.mt_rand(5, 8).'_'.mt_rand(0, 9);
+        return 'Macintosh; '.static::randomElement(static::$macProcessor).' Mac OS X 10_'
+            .mt_rand(5, 8).'_'.mt_rand(0, 9);
     }
 
     /**

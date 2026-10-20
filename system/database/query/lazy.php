@@ -174,7 +174,6 @@ class Lazy implements \Iterator
     {
         $this->index++;
 
-        // Chunk exhausted and it was full: there may be more rows.
         if ($this->index >= count($this->rows) && count($this->rows) === $this->size) {
             $this->offset += $this->size;
             $this->index = 0;

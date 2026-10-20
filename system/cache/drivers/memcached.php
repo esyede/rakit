@@ -159,7 +159,6 @@ class Memcached extends Sectionable
         $prefixed = $this->key.$key;
         $by = (int) $by;
 
-        // Memcached counters cannot go below zero.
         /** @disregard */
         if ($this->memcached->add($prefixed, max(0, $by), $this->expiration($minutes))) {
             return max(0, $by);

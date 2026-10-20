@@ -240,7 +240,9 @@ class Debugger
             ini_get('display_errors') != (! self::$productionMode) // != is intentional to cover '1' and '0'
             && ini_get('display_errors') !== (self::$productionMode ? 'stderr' : 'stdout')
         ) {
-            self::exceptionHandler(new \RuntimeException("Unable to set 'display_errors' because function ini_set() is disabled."));
+            self::exceptionHandler(new \RuntimeException(
+                "Unable to set 'display_errors' because function ini_set() is disabled."
+            ));
         }
 
         error_reporting(E_ALL);
@@ -277,8 +279,10 @@ class Debugger
             return;
         } elseif (headers_sent($file, $line)) {
             throw new \LogicException(
-                'Debugger::dispatch() called after some output has been sent. '
-                    . ($file ? "Output started at $file:$line." : 'Try System\Foundation\Oops\Outputs to find where output started.')
+                'Debugger::dispatch() called after some output has been sent. ' . ($file
+                    ? "Output started at $file:$line."
+                    : 'Try System\Foundation\Oops\Outputs to find where output started.'
+                )
             );
         }
 
@@ -345,7 +349,13 @@ class Debugger
 
         if (isset($error['type']) && in_array($error['type'], $errors, true)) {
             self::exceptionHandler(
-                Helpers::fixStack(new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line'])),
+                Helpers::fixStack(new \ErrorException(
+                    $error['message'],
+                    0,
+                    $error['type'],
+                    $error['file'],
+                    $error['line']
+                )),
                 false
             );
         } elseif (self::$showBar && ! self::$productionMode) {
@@ -407,7 +417,10 @@ class Debugger
 
             if (Helpers::isHtmlMode()) {
                 if (is_file(static::$errorTemplate)) {
-                    if (\System\Hook::exists('rakit.view.engine') && substr(static::$errorTemplate, -10) === '.blade.php') {
+                    if (
+                        \System\Hook::exists('rakit.view.engine')
+                        && substr(static::$errorTemplate, -10) === '.blade.php'
+                    ) {
                         try {
                             echo \System\View::make('error.500')->render();
                         } catch (\Throwable $e) {
@@ -427,9 +440,9 @@ class Debugger
                     . ($logged ? "Error was logged.\n" : "Unable to log error.\n"));
             }
         } elseif (! connection_aborted() && (Helpers::isHtmlMode() || Helpers::isAjax())) {
-            $isJsonRequest = isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false;
+            $isJsonRequest = isset($_SERVER['HTTP_ACCEPT'])
+                && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false;
             if (Helpers::isAjax() && $isJsonRequest) {
-                // The exception already carries its file, line and trace.
                 \System\Log::error($e->getMessage(), ['exception' => $e]);
                 header('Content-Type: application/json; charset=UTF-8');
                 echo json_encode(['status' => 500, 'message' => $e->getMessage()]);
@@ -456,10 +469,8 @@ class Debugger
                 $file = null;
 
                 if (self::$logDirectory) {
-                    // Writes the log entry once, and sends the error email.
                     $file = self::log($e, self::EXCEPTION);
 
-                    // The HTML error page is not rendered into that file yet, see Logger::logException().
                     if ($file && is_file($file) && ! headers_sent()) {
                         header('X-Oops-Error-Log: ' . $file);
                     }
@@ -535,8 +546,6 @@ class Debugger
 
         $context = (array) $context;
 
-        // Deprecations go to their own panel instead of a blue screen. The static
-        // guard prevents re-entry if collecting one emits a notice of its own.
         static $handlingDeprecation = false;
 
         if (! self::$productionMode && ($severity === E_DEPRECATED || $severity === E_USER_DEPRECATED)) {
@@ -589,7 +598,6 @@ class Debugger
             Context::setContext($e, $context);
             Context::setSkippable($e, true);
 
-            // The handler exits, which would kill a worker process: throw instead.
             if (defined('RAKIT_WORKER_MODE')) {
                 throw $e;
             }
@@ -911,10 +919,11 @@ class Debugger
     public static function detectDebugMode($list = null)
     {
         $addr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n');
-        $secret = (isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])) ? $_COOKIE[self::COOKIE_SECRET] : null;
+        $secret = (isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET]))
+            ? $_COOKIE[self::COOKIE_SECRET]
+            : null;
         $list = is_string($list) ? preg_split('#[,\s]+#', $list) : (array) $list;
 
-        // Allow list only: localhost is not implied, it has to be configured.
         return in_array($addr, $list, true) || in_array("$secret@$addr", $list, true);
     }
 }

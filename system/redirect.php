@@ -72,25 +72,23 @@ class Redirect extends Response
      */
     public static function to($url, $status = 302)
     {
-        // Prevent open redirect: block external URLs
         if (is_string($url) && '' !== trim($url)) {
             $trimmed = trim($url);
-            // Detect protocol-relative //evil.com or \\evil.com
+
             if (preg_match('#^(//|\\\\)#', $trimmed)) {
                 throw new \Exception('External URL not allowed for Redirect::to(), use Redirect::away() instead.');
             }
-            // Detect absolute URL with scheme
+
             if (filter_var($trimmed, FILTER_VALIDATE_URL)) {
                 if (!static::local($trimmed)) {
                     throw new \Exception('External URL not allowed for Redirect::to(), use Redirect::away() instead.');
                 }
             } else {
-                // Also block javascript:, data:, vbscript: etc.
                 if (preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*:#', $trimmed)) {
                     throw new \Exception('Invalid redirect URL.');
                 }
             }
-            // Block CRLF header injection
+
             if (preg_match('/[\r\n]/', $trimmed)) {
                 throw new \Exception('Invalid redirect URL.');
             }

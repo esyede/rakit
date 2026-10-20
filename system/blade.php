@@ -124,8 +124,6 @@ class Blade
 
             try {
                 if (static::stale($view->path, $compiled)) {
-                    // Write aside, then rename: require takes no lock, so a request
-                    // racing the write could include a half-written file.
                     $temp = $compiled.'.'.uniqid('', true).'.tmp';
                     file_put_contents($temp, static::GUARD.static::compile($view));
 
@@ -987,7 +985,6 @@ class Blade
                 return $matches[1].'<input type="hidden" name="_method" value="" />';
             }
 
-            // If quoted literal, escape at compile time; otherwise escape at runtime via e()
             if (preg_match('/^([\'"])(.*)\1$/s', $inner, $m)) {
                 $literal = $m[2];
                 $escaped = htmlspecialchars($literal, ENT_QUOTES, 'UTF-8', false);

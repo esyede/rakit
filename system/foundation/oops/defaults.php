@@ -226,36 +226,16 @@ class Defaults
     private function refreshData()
     {
         switch ($this->id) {
-            case 'messages':
-                $this->data = Collectors::getData('messages');
-                break;
-            case 'timeline':
-                $this->data = Collectors::getData('timeline');
-                break;
-            case 'events':
-                $this->data = Collectors::getData('events');
-                break;
-            case 'view':
-                $this->data = Collectors::getData('views');
-                break;
-            case 'cache':
-                $this->data = Collectors::getData('cache');
-                break;
-            case 'session':
-                $this->data = Collectors::collectSession();
-                break;
-            case 'exceptions':
-                $this->data = Collectors::getData('exceptions');
-                break;
-            case 'deprecations':
-                $this->data = Collectors::getData('deprecations');
-                break;
-            case 'httpclient':
-                $this->data = Collectors::getData('httpclient');
-                break;
-            case 'mails':
-                $this->data = Collectors::getData('mails');
-                break;
+            case 'messages':     $this->data = Collectors::getData('messages'); break;
+            case 'timeline':     $this->data = Collectors::getData('timeline'); break;
+            case 'events':       $this->data = Collectors::getData('events'); break;
+            case 'view':         $this->data = Collectors::getData('views'); break;
+            case 'cache':        $this->data = Collectors::getData('cache'); break;
+            case 'session':      $this->data = Collectors::collectSession(); break;
+            case 'exceptions':   $this->data = Collectors::getData('exceptions'); break;
+            case 'deprecations': $this->data = Collectors::getData('deprecations'); break;
+            case 'httpclient':   $this->data = Collectors::getData('httpclient'); break;
+            case 'mails':        $this->data = Collectors::getData('mails'); break;
         }
     }
 

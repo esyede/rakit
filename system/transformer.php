@@ -112,7 +112,6 @@ class Transformer implements \ArrayAccess, \JsonSerializable
     public function additional(array $data)
     {
         $this->additional = array_merge($this->additional, $data);
-
         return $this;
     }
 
@@ -179,7 +178,6 @@ class Transformer implements \ArrayAccess, \JsonSerializable
                 continue;
             }
 
-            // A nested transformer contributes its data, not another wrapper.
             if ($value instanceof self) {
                 $result[$key] = $value->filtered();
                 continue;

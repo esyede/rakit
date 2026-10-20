@@ -77,9 +77,7 @@ abstract class Grammar
         $wrapped = [];
 
         foreach ($segments as $key => $value) {
-            $wrapped[] = (0 === $key && count($segments) > 1)
-                ? $this->wrap_table($value)
-                : $this->wrap_value($value);
+            $wrapped[] = (0 === $key && count($segments) > 1) ? $this->wrap_table($value) : $this->wrap_value($value);
         }
 
         return implode('.', $wrapped);
@@ -98,10 +96,7 @@ abstract class Grammar
             return '*';
         }
 
-        // Doubling escapes the closing character for every wrapper here:
-        // '"' (ANSI/sqlite/postgres), '`' (mysql) and ']' (sqlserver).
         $quote = substr($this->wrapper, -1);
-
         return sprintf($this->wrapper, str_replace($quote, $quote.$quote, (string) $value));
     }
 

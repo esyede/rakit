@@ -68,7 +68,9 @@ class Factory
             return $class;
         }
 
-        throw new \InvalidArgumentException(sprintf("Unable to find provider '%s' with locale '%s'", $provider, $locale));
+        throw new \InvalidArgumentException(
+            sprintf("Unable to find provider '%s' with locale '%s'", $provider, $locale)
+        );
     }
 
     /**

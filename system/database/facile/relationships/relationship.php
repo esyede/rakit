@@ -62,7 +62,6 @@ abstract class Relationship extends Query
             $this->table->where_null($this->model->table().'.deleted_at');
         }
 
-        // ponytail: scopes are re-run on the reset query; a scope adding joins would join twice.
         $this->model->apply_scopes($this->table);
     }
 

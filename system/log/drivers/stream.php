@@ -29,7 +29,6 @@ class Stream extends Driver
         }
 
         if (false === @fwrite($this->handle, $this->format($record).PHP_EOL)) {
-            // The other end may have gone away, reopen on the next write.
             $this->handle = null;
             throw new \RuntimeException(sprintf('Unable to write to log stream: %s', $stream));
         }
@@ -55,7 +54,6 @@ class Stream extends Driver
                 throw new \RuntimeException(sprintf('Log stream is not writable: %s', $stream));
             }
 
-            // Read before the file is opened, opening it in append mode creates it.
             $guard = static::guard($stream);
         }
 

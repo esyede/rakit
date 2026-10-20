@@ -508,11 +508,15 @@ class File extends Base
     public static function file($sourceDir = '/tmp', $targetDir = '/tmp', $fullPath = true)
     {
         if (! is_dir($sourceDir)) {
-            throw new \InvalidArgumentException(sprintf('Source directory does not exist or is not a directory: %s', $sourceDir));
+            throw new \InvalidArgumentException(
+                sprintf('Source directory does not exist or is not a directory: %s', $sourceDir)
+            );
         }
 
         if (! is_dir($targetDir)) {
-            throw new \InvalidArgumentException(sprintf('Target directory does not exist or is not a directory: %s', $targetDir));
+            throw new \InvalidArgumentException(
+                sprintf('Target directory does not exist or is not a directory: %s', $targetDir)
+            );
         }
 
         if ($sourceDir === $targetDir) {
