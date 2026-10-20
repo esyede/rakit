@@ -539,9 +539,24 @@ forgets `'before' => 'csrf'` is still protected. The token is read from the
 without a valid one gets a 422. Stateless routes (`session.stateless`, `api/*` by
 default) have no session cookie to abuse, so they are not checked.
 
-Turn a single route off with `'csrf' => false`, or every route with
-`'csrf_global' => false` in `application/config/application.php` (the `csrf`
-middleware then works per route, as before). Endpoints that cannot carry the
+Turn the check off for a route, or for every route of a group, with `'csrf' => false`
+in its action:
+
+```php
+Route::post('webhook/payment', ['csrf' => false, function () {
+    // ..
+}]);
+
+Route::post('webhook/shipping', ['csrf' => false, 'uses' => 'webhook@shipping']);
+
+Route::group(['csrf' => false, 'prefix' => 'webhook'], function () {
+    Route::post('sms', 'webhook@sms');
+});
+```
+
+Turn it off for every route with `'csrf_global' => false` in
+`application/config/application.php` (the `csrf` middleware then works per route,
+as before). Endpoints that cannot carry the
 session token (webhooks, server-to-server callbacks) can be exempted in the same file:
 
 ```php
