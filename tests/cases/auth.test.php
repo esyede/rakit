@@ -315,6 +315,34 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test for Auth::login() - the remember cookie holds an HMAC of the password hash,
+     * never the hash, and still logs the user back in.
+     *
+     * @group system
+     */
+    public function testRememberCookieCarriesNoPasswordHash()
+    {
+        Session::$instance = new Payload($this->getMockSessionDriver());
+        Session::instance()->load(null);
+
+        $driver = new \System\Auth\Drivers\Magic();
+        $driver->login(1, true);
+
+        $cookie = Cookie::get('system_auth_drivers_magic_remember');
+        $plain = Crypter::decrypt($cookie);
+        $password = Database::table('users')->find(1)->password;
+
+        $this->assertNotContains($password, $plain);
+        $this->assertEquals(hash_hmac('sha256', 'rakit-remember|'.$password, RAKIT_KEY), explode('|', $plain, 3)[2]);
+
+        Cookie::forever('system_auth_drivers_magic_remember', $cookie);
+        Session::$instance = new Payload($this->getMock('\System\Session\Drivers\Driver'));
+
+        $returning = new \System\Auth\Drivers\Magic();
+        $this->assertEquals(1, $returning->user()->id);
+    }
+
+    /**
      * Test for Auth::retrieve() - a key that is not an integer still works.
      *
      * @group system

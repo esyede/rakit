@@ -87,8 +87,8 @@ $active = URI::is('products/*') ? 'active' : '';
 ## Request Method
 
 `method()` returns the uppercase HTTP method, honoring method spoofing via the
-`_method` field. `real_method()` returns the method the server actually
-received, use it for security decisions:
+`_method` field of a `POST` body (never the query string). `real_method()` returns
+the method the server actually received, use it for security decisions:
 
 ```php
 $method = Request::method(); // 'POST', 'PUT', ...

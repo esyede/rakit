@@ -136,7 +136,11 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = Response::jsonp('callback', $data);
 
         $this->assertEquals('application/javascript; charset=utf-8', $response->headers()->get('Content-Type'));
-        $this->assertEquals('callback(' . json_encode($data) . ');', $response->content);
+        $this->assertEquals('nosniff', $response->headers()->get('X-Content-Type-Options'));
+        $this->assertEquals('/**/callback(' . json_encode($data) . ');', $response->content);
+
+        $response = Response::jsonp('callback', ['html' => '</script><script>alert(1)</script>']);
+        $this->assertNotContains('</script>', $response->content);
     }
 
     /**

@@ -43,6 +43,14 @@ $image = Image::open('assets/images/test.jpg', 90);
 All paths in this component are relative to the project root (`path('base')`).
 Manipulation methods return the instance, so they can be chained.
 
+An image over `Image::$max_pixels` pixels (40 million by default, about 160 MB once decoded)
+throws before it is decoded, so an upload declaring a huge size in a tiny file cannot exhaust the
+memory. Raise it, or set it to `null`, for images you trust:
+
+```php
+Image::$max_pixels = 100000000;
+```
+
 <a id="resizing-and-cropping"></a>
 <a id="image-manipulation"></a>
 <a id="resize-images"></a>

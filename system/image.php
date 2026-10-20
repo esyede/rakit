@@ -7,6 +7,15 @@ defined('DS') or exit('No direct access.');
 class Image
 {
     /**
+     * The most pixels an image may have to be loaded. GD keeps about 4 bytes per pixel,
+     * so a small file declaring a huge size (a decompression bomb) would exhaust the
+     * memory. NULL for no limit.
+     *
+     * @var int|null
+     */
+    public static $max_pixels = 40000000;
+
+    /**
      * Contains the singleton instance of this class.
      *
      * @var object
@@ -122,6 +131,16 @@ class Image
 
         $this->exif = [];
         list($this->width, $this->height, $this->type) = getimagesize($path);
+
+        // getimagesize() reads the header only: check before GD allocates the pixels.
+        if (! is_null(static::$max_pixels) && $this->width * $this->height > static::$max_pixels) {
+            throw new \Exception(sprintf(
+                'Image too large: %dx%d pixels exceeds %d.',
+                $this->width,
+                $this->height,
+                static::$max_pixels
+            ));
+        }
 
         if ($this->type === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
             $exif = exif_read_data($path, 'IFD0');

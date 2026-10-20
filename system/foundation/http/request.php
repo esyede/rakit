@@ -1000,7 +1000,9 @@ class Request
             $this->method = strtoupper((string) $this->server->get('REQUEST_METHOD', 'GET'));
 
             if ('POST' === $this->method) {
-                $method = $this->request->get('_method', $this->query->get('_method', 'POST'));
+                // From the body only: a '?_method=DELETE' on a link or a form action
+                // would otherwise turn a plain POST into another method.
+                $method = $this->request->get('_method', 'POST');
                 // X-Http-Method-Override is opt-in: it spoofs the method, so access
                 // control should use real_method().
                 $allow_header_override = false;

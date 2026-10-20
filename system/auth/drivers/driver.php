@@ -189,7 +189,7 @@ abstract class Driver
             return;
         }
 
-        $payload = $token.'|'.$value.'|'.$this->password($this->user);
+        $payload = $token.'|'.$value.'|'.$this->fingerprint($this->user);
         $this->cookie($this->recaller(), Crypter::encrypt($payload), 2628000);
     }
 
@@ -244,7 +244,12 @@ abstract class Driver
             return;
         }
 
-        if (! Crypter::equals($this->password($user), $password)) {
+        // A changed password logs the cookie out. Cookies written before carried the
+        // hash itself, and stay valid until they are written again.
+        if (
+            ! Crypter::equals($this->fingerprint($user), $password)
+            && ! Crypter::equals($this->password($user), $password)
+        ) {
             return;
         }
 
@@ -277,6 +282,19 @@ abstract class Driver
     protected function save_remember_token($user, $value)
     {
         return false;
+    }
+
+    /**
+     * Get what the "remember me" cookie carries of the password: an HMAC of its hash,
+     * so a leaked cookie gives nothing to crack, yet a new password invalidates it.
+     *
+     * @param mixed $user
+     *
+     * @return string
+     */
+    protected function fingerprint($user)
+    {
+        return hash_hmac('sha256', 'rakit-remember|'.$this->password($user), RAKIT_KEY);
     }
 
     /**

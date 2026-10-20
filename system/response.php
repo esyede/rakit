@@ -116,7 +116,13 @@ class Response
         }
 
         $headers['Content-Type'] = 'application/javascript; charset=utf-8';
-        return new static($callback.'('.json_encode($data).');', $status, $headers);
+        $headers['X-Content-Type-Options'] = 'nosniff';
+
+        // The leading comment defeats the Rosetta Flash attack, which needs the body to
+        // start with the callback; the HEX flags keep </script> and quotes out of it.
+        $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+
+        return new static('/**/'.$callback.'('.$json.');', $status, $headers);
     }
 
     /**

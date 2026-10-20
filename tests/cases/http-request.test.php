@@ -564,10 +564,11 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
         $request->request->set('_method', 'purge');
         $this->assertEquals('PURGE', $request->getMethod());
 
+        // Only the body may spoof the method, not the query string.
         $request->setMethod('POST');
         $request->request->remove('_method');
         $request->query->set('_method', 'purge');
-        $this->assertEquals('PURGE', $request->getMethod());
+        $this->assertEquals('POST', $request->getMethod());
 
         $request->setMethod('POST');
         $request->query->remove('_method');

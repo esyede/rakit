@@ -1111,11 +1111,12 @@ class Upload extends \SplFileInfo
      * @var array
      */
     public static $blocked_extensions = [
-        'php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'pht', 'phar', 'inc',
+        'php', 'php2', 'php3', 'php4', 'php5', 'php7', 'php8', 'phps', 'phpt', 'pgif',
+        'phtml', 'pht', 'phar', 'inc', 'ini',
         'cgi', 'pl', 'py', 'sh', 'bash', 'exe', 'dll', 'so', 'dylib',
         'asp', 'aspx', 'jsp', 'jspx', 'shtml', 'shtm', 'htaccess', 'htpasswd',
         'js', 'vbs', 'ws', 'wsh', 'ps1', 'bat', 'cmd', 'com',
-        'html', 'htm', 'xhtml', 'svg', 'svgz',
+        'html', 'htm', 'xhtml', 'xht', 'xml', 'xsl', 'xslt', 'mht', 'mhtml', 'svg', 'svgz', 'swf',
     ];
 
     /**

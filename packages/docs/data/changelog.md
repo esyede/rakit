@@ -379,6 +379,18 @@ Security audit fixes — all severities:
 
 **Fixed**
 
+-   **The "remember me" cookie carried the password hash.** It now carries an HMAC
+    of it, so a leaked cookie gives nothing to crack offline; changing the password
+    still invalidates it. Cookies written before keep working until rewritten.
+-   **`_method` was read from the query string.** A `POST` to `?_method=DELETE`
+    (a link or a form action) became a `DELETE`. Only the body is read now.
+-   **JSONP** starts with `/**/` against the Rosetta Flash attack, sends
+    `X-Content-Type-Options: nosniff`, and escapes `<`, `>`, `&` and quotes.
+-   **Uploads:** `.user.ini` / `*.ini` (whose `auto_prepend_file` runs any file
+    under PHP-FPM), `phps`, `php2`, `pgif`, `phpt`, and the script-carrying `xml`,
+    `xht`, `xsl`, `xslt`, `mht`, `mhtml` and `swf` are refused.
+-   **Images over `Image::$max_pixels`** (40 million) throw before GD decodes them, so
+    a small file declaring a huge size cannot exhaust the memory.
 -   **`mimes` and `image` rules failed on every real upload.** They read the file
     through `Storage`, whose path checks refuse the system temp folder PHP uploads
     to, so they threw "Path outside allowed directory". They now read the upload
