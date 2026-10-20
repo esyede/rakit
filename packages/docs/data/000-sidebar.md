@@ -36,6 +36,7 @@
 -   [Cache Configuration](/docs/cache/config)
 -   [Using Cache](/docs/cache/usage)
 -   [Job (Queues & Scheduling)](/docs/job)
+-   [Task Scheduling](/docs/schedule)
 -   [Email](/docs/email)
 -   [Storage](/docs/storage)
 -   [HTTP Client (Curl)](/docs/curl)

@@ -211,6 +211,10 @@ class Schema extends System\Database\Schema
 {
 }
 
+class Schedule extends System\Schedule
+{
+}
+
 class Section extends System\Section
 {
 }

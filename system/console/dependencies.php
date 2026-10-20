@@ -29,6 +29,13 @@ if (! Container::registered('command: job')) {
     });
 }
 
+// Register classes for the 'schedule' command.
+if (! Container::registered('command: schedule')) {
+    Container::register('command: schedule', function () {
+        return new Commands\Schedule();
+    });
+}
+
 // Register classes for the 'package' command.
 if (! Container::registered('command: package')) {
     Container::register('command: package', function () {

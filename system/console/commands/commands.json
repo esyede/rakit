@@ -29,6 +29,16 @@
             "command": "php rakit job:runall"
         }
     },
+    "schedule": {
+        "schedule:run": {
+            "description": "Run the scheduled events that are due (call it from cron every minute).",
+            "command": "php rakit schedule:run"
+        },
+        "schedule:list": {
+            "description": "List the scheduled events.",
+            "command": "php rakit schedule:list"
+        }
+    },
     "make": {
         "make:controller": {
             "description": "Create a controller.",

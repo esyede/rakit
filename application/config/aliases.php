@@ -63,6 +63,7 @@ return [
     'Router' => 'System\Routing\Router',
     'RSA' => 'System\RSA',
     'Schema' => 'System\Database\Schema',
+    'Schedule' => 'System\Schedule',
     'Section' => 'System\Section',
     'Session' => 'System\Session',
     'Storage' => 'System\Storage',

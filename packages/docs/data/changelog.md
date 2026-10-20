@@ -451,6 +451,12 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Task scheduling.** `Schedule::call()`, `command()` and `exec()` with
+    `cron()`, `every_minute()` .. `yearly()`, `daily_at()`, `weekly_on()`,
+    `weekdays()`, `timezone()`, `when()`, `skip()`, `name()` and
+    `without_overlapping()` (a file lock). Events are defined in a
+    `rakit.schedule` listener and run by `php rakit schedule:run` from one cron
+    entry; `schedule:list` shows them. See `schedule.md`.
 -   **Route model binding.** `Route::model('user', 'User'[, 'column'])` and
     `Route::bind('team', closure)` add a `(:user)` / `(:user?)` wildcard that passes
     the record, or answers 404 when there is none. Bindings resolve after the

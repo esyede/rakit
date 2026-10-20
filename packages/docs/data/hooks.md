@@ -89,6 +89,7 @@ Rakit fires these events itself:
 | Event                              | Fired with                | Listener arguments                                    |
 | ---------------------------------- | ------------------------- | ----------------------------------------------------- |
 | `rakit.done`                       | `fire`                    | `Response $response` — after the response is sent     |
+| `rakit.schedule`                   | `fire`                    | none — when `schedule:run` / `schedule:list` starts; define [scheduled events](/docs/schedule) here |
 | `rakit.terminated`                 | `fire`                    | `Response $response` — after the connection is finished (FastCGI) and the session sweep ran; for slow work the client should not wait on. Output is dropped |
 | `rakit.reset`                      | `fire`                    | none — start of every worker request, after the framework reset its state |
 | `rakit.log`                        | `fire`                    | `string $type, string $message, array $context`       |
