@@ -45,7 +45,7 @@ class MorphOne extends HasOne
     protected function constrain()
     {
         $this->table
-            ->where($this->type, '=', get_class($this->base))
+            ->where($this->type, '=', $this->base->morph_class())
             ->where($this->id, '=', $this->base->get_key());
     }
 
@@ -56,7 +56,7 @@ class MorphOne extends HasOne
      */
     public function eagerly_constrain(array $results)
     {
-        $this->table->where($this->type, '=', get_class($this->base));
+        $this->table->where($this->type, '=', $this->base->morph_class());
         $this->table->where_in($this->id, $this->keys($results));
     }
 
@@ -77,7 +77,7 @@ class MorphOne extends HasOne
      */
     protected function set_foreign_key(Model $model)
     {
-        $model->set_attribute($this->type, get_class($this->base));
+        $model->set_attribute($this->type, $this->base->morph_class());
         $model->set_attribute($this->id, $this->base->get_key());
     }
 
@@ -91,7 +91,7 @@ class MorphOne extends HasOne
     public function correlate($parent_table)
     {
         $this->reset_constraints();
-        $this->table->where($this->type, '=', get_class($this->base));
+        $this->table->where($this->type, '=', $this->base->morph_class());
         $this->table->where_column(
             $this->model->table() . '.' . $this->id,
             '=',

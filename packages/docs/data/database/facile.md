@@ -607,6 +607,23 @@ $comments = Post::find(1)->comments;
 $parent = Comment::find(1)->commentable; // a Post, Video, ...
 ```
 
+The `{name}_type` column stores the parent's class name. `morph_to()` only turns it back into a
+Facile model: a value naming any other class, or no class, gives `null`, and that class is never
+loaded nor created.
+
+To store short names instead, independent of the class names, register a morph map once, in
+`application/boot.php`. Parents are then stored under their alias, and the aliases resolve back:
+
+```php
+Facile::morph_map([
+    'post' => 'Post',
+    'video' => 'Video',
+]);
+```
+
+Map every model before rows are written with the alias; existing rows that hold a class name keep
+working.
+
 <a id="relationship-queries"></a>
 <a id="querying-relationships"></a>
 

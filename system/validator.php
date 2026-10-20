@@ -1388,10 +1388,16 @@ class Validator
      */
     protected function validate_unique($attribute, $value, array $parameters)
     {
-        if (isset($parameters[1])) {
+        // An array would reach the query as a binding and fail with a 500.
+        if (! is_scalar($value)) {
+            return false;
+        }
+
+        if (isset($parameters[1]) && '' !== $parameters[1]) {
             $attribute = $parameters[1];
         }
 
+        $this->identifiers('unique', [$parameters[0], $attribute, isset($parameters[3]) ? $parameters[3] : 'id']);
         $query = $this->db()->table($parameters[0])->where($attribute, '=', $value);
 
         if (isset($parameters[2])) {
@@ -1413,14 +1419,79 @@ class Validator
     protected function validate_exists($attribute, $value, array $parameters)
     {
         $query = $this->db()->table($parameters[0]);
-        $attribute = isset($parameters[1]) ? $parameters[1] : $attribute;
+        $attribute = (isset($parameters[1]) && '' !== $parameters[1]) ? $parameters[1] : $attribute;
+        $this->identifiers('exists', [$parameters[0], $attribute]);
 
         if (is_array($value)) {
+            foreach ($value as $item) {
+                if (! is_scalar($item)) {
+                    return false;
+                }
+            }
+
             $value = array_unique($value);
             return (int) $query->where_in($attribute, $value)->distinct()->count($attribute) === count($value);
         }
 
+        if (! is_scalar($value)) {
+            return false;
+        }
+
         return (int) $query->where($attribute, '=', $value)->count() >= 1;
+    }
+
+    /**
+     * Refuse table and column names that are not plain identifiers. They are wrapped
+     * when queried, so this is not about injection, but a name built from input
+     * ('unique:users,email,'.$id with $id "5,password") must not pass unnoticed.
+     *
+     * @param string $rule
+     * @param array  $names
+     */
+    protected function identifiers($rule, array $names)
+    {
+        foreach ($names as $name) {
+            if (! preg_match('/^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?$/', (string) $name)) {
+                throw new \InvalidArgumentException(sprintf("Invalid table or column name in the '%s' rule: %s", $rule, $name));
+            }
+        }
+    }
+
+    /**
+     * Build a 'unique' rule whose ignored ID cannot add parameters of its own: a value
+     * such as "5,password" stays one quoted value.
+     *
+     *     'email' => ['required', 'email', Validator::unique_rule('users', 'email', $user->id)]
+     *
+     * @param string          $table
+     * @param string|null     $column
+     * @param int|string|null $ignore
+     * @param string          $id_column
+     *
+     * @return string
+     */
+    public static function unique_rule($table, $column = null, $ignore = null, $id_column = 'id')
+    {
+        // CSV quoting, as parse() reads it: a quote is doubled. A trailing backslash
+        // would escape the closing quote, and no real ID ends with one.
+        $quote = function ($value) {
+            $value = (string) $value;
+
+            if ('\\' === substr($value, -1)) {
+                throw new \InvalidArgumentException('An ignored ID may not end with a backslash.');
+            }
+
+            return '"'.str_replace('"', '""', $value).'"';
+        };
+
+        $parameters = [$table, is_null($column) ? '' : $column];
+
+        if (! is_null($ignore)) {
+            $parameters[] = $quote($ignore);
+            $parameters[] = $id_column;
+        }
+
+        return 'unique:'.implode(',', $parameters);
     }
 
     /**

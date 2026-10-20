@@ -391,7 +391,17 @@ These rules query the default database connection (see [connection()](#validator
 'city'  => 'exists:cities,abbreviation',         // check a different column
 ```
 
-When the value of `exists` is an array, every element must exist.
+When the value of `exists` is an array, every element must exist. A value that is not a string or
+number (an array for `unique`, nested arrays for `exists`) fails without querying, and a table or
+column name that is not a plain identifier throws an `InvalidArgumentException`.
+
+Never append an ID from the request to the rule string: `'unique:users,email,'.$id` with `$id`
+set to `5,password` adds a parameter of its own. Build the rule with `Validator::unique_rule()`,
+which keeps the ID one value, and use the array form of the rules:
+
+```php
+'email' => ['required', 'email', Validator::unique_rule('users', 'email', $user->id)],
+```
 
 <a id="date"></a>
 

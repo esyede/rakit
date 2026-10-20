@@ -104,7 +104,7 @@ class MorphToMany extends Relationship
         $pivot_query = $this->base->query()
             ->connection()
             ->table($this->pivot_table)
-            ->where($this->type, '=', get_class($this->base))
+            ->where($this->type, '=', $this->base->morph_class())
             ->where($this->id, '=', $this->base->get_key())
             ->lists($this->other);
 
@@ -112,26 +112,29 @@ class MorphToMany extends Relationship
             return new Collection();
         }
 
-        $query = static::constrain_keys($this->model->query(), $this->model->key(), $pivot_query);
+        // On the relationship's own query, so where() calls made on it apply.
+        static::constrain_keys($this->table, $this->model->key(), $pivot_query);
 
-        return $query->get($columns);
+        return parent::get($columns);
     }
 
     /**
      * Eager load the relationship for a whole result set.
      *
-     * @param array  $results
-     * @param string $relationship
+     * @param array         $results
+     * @param string        $relationship
+     * @param \Closure|null $constraints
+     * @param array         $nested
      *
      * @return array
      */
-    public function eager_load(array &$results, $relationship)
+    public function eager_load(array &$results, $relationship, $constraints = null, array $nested = [])
     {
         $keys = $this->keys($results);
         $pivot_records = $this->base->query()
             ->connection()
             ->table($this->pivot_table)
-            ->where($this->type, '=', get_class($this->base))
+            ->where($this->type, '=', $this->base->morph_class())
             ->where_in($this->id, $keys)
             ->get([$this->id, $this->other]);
 
@@ -151,7 +154,14 @@ class MorphToMany extends Relationship
         $related_models = [];
 
         if (! empty($related_ids)) {
-            $models = static::constrain_keys($this->model->query(), $this->model->key(), $related_ids)->get();
+            $query = $this->model->query();
+            $query->model->with = $nested;
+
+            if (! is_null($constraints)) {
+                $query->table->where_nested($constraints);
+            }
+
+            $models = static::constrain_keys($query, $this->model->key(), $related_ids)->get();
 
             foreach ($models as $model) {
                 $related_models[$model->get_key()] = $model;

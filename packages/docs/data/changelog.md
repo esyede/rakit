@@ -379,6 +379,22 @@ Security audit fixes — all severities:
 
 **Fixed**
 
+-   **`morph_to()` created any class a row named.** The `{name}_type` column was
+    loaded and instantiated as is, so a row (or a mass-assigned attribute) naming
+    any autoloadable class constructed it. Only Facile models are created now,
+    resolved through the new morph map (`Facile::morph_map()`) when one is set.
+-   **Eager constraints were dropped for polymorphic relations.**
+    `with(['tags' => function ($q) { ... }])` and nested `with('tags.author')` were
+    ignored for `morph_to` and `morph_to_many`, and `$post->tags()->where(...)->get()`
+    ignored its `where()`: a tenant or visibility filter returned every row.
+-   **Relationship names called any model method.** `with()`, `with_count()` and
+    `has()` called the named method before checking it was a relationship, so
+    `with(Input::get('include'))` with `save` or `delete` ran it. Only public,
+    argument-less methods the model declares itself are called now.
+-   **`unique` and `exists` accepted arrays and odd names.** An array value caused a
+    500, and table/column names are now checked. `Validator::unique_rule($table,
+    $column, $ignore)` builds the rule with the ignored ID quoted, so an ID like
+    `5,password` cannot add a parameter.
 -   **A route's own middleware replaced its group's.** Inside
     `Route::group(['before' => 'auth'], ...)`, a route with `'before' => 'csrf'` ran
     only `csrf`: the group's `auth` was dropped, so the route was reachable without

@@ -682,15 +682,7 @@ class Query
      */
     protected function resolve_relationship($relationship)
     {
-        if (! method_exists($this->model, $relationship)) {
-            throw new \Exception(sprintf(
-                'Undefined relationship on %s: %s',
-                get_class($this->model),
-                $relationship
-            ));
-        }
-
-        $relation = $this->model->{$relationship}();
+        $relation = $this->model->{$this->relationship_method($relationship)}();
 
         if (! ($relation instanceof Relationships\Relationship)) {
             throw new \Exception(sprintf(
@@ -701,6 +693,42 @@ class Query
         }
 
         return $relation;
+    }
+
+    /**
+     * Check that a name may be called as a relationship before calling it. Names
+     * often come from the request (with(Input::get('include'))), so only a public,
+     * argument-less method the model itself declares qualifies: never save(),
+     * delete() or any other method of the base Model.
+     *
+     * @param string $relationship
+     *
+     * @return string
+     */
+    protected function relationship_method($relationship)
+    {
+        $model = get_class($this->model);
+
+        if (
+            ! is_string($relationship)
+            || ! preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $relationship)
+            || ! method_exists($this->model, $relationship)
+        ) {
+            throw new \Exception(sprintf('Undefined relationship on %s: %s', $model, $relationship));
+        }
+
+        $method = new \ReflectionMethod($this->model, $relationship);
+
+        if (
+            ! $method->isPublic()
+            || $method->isStatic()
+            || 0 !== $method->getNumberOfRequiredParameters()
+            || method_exists('System\\Database\\Facile\\Model', $relationship)
+        ) {
+            throw new \Exception(sprintf('Method %s::%s() is not a relationship.', $model, $relationship));
+        }
+
+        return $relationship;
     }
 
     /**
@@ -915,10 +943,12 @@ class Query
      */
     protected function load(array &$results, $relationship, $constraints)
     {
-        $query = $this->model->{$relationship}();
+        $query = $this->resolve_relationship($relationship);
 
         if (method_exists($query, 'eager_load')) {
-            $query->eager_load($results, $relationship);
+            // The constraints and nested relationships apply here too: a tenant or
+            // visibility filter in with(['tags' => ...]) must never be skipped.
+            $query->eager_load($results, $relationship, $constraints, $this->nested_with($relationship));
             return;
         }
 

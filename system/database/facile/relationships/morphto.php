@@ -62,22 +62,27 @@ class MorphTo extends Relationship
         $type = $owner->{$this->type};
         $id = $owner->{$this->id};
 
-        if (is_null($type) || is_null($id) || ! class_exists($type)) {
+        // The type is read from the database: only a mapped alias or a model class.
+        $class = is_null($id) ? null : \System\Database\Facile\Model::morph_resolve($type);
+
+        if (is_null($class)) {
             return;
         }
 
-        return (new $type())->find($id);
+        return (new $class())->find($id);
     }
 
     /**
      * Eager load the relationship for a whole result set.
      *
-     * @param array  $results
-     * @param string $relationship
+     * @param array         $results
+     * @param string        $relationship
+     * @param \Closure|null $constraints
+     * @param array         $nested
      *
      * @return array
      */
-    public function eager_load(array &$results, $relationship)
+    public function eager_load(array &$results, $relationship, $constraints = null, array $nested = [])
     {
         $types = [];
 
@@ -93,13 +98,22 @@ class MorphTo extends Relationship
         $loaded = [];
 
         foreach ($types as $type => $ids) {
-            if (! class_exists($type)) {
+            $class = \System\Database\Facile\Model::morph_resolve($type);
+
+            if (is_null($class)) {
                 continue;
             }
 
-            $class = $type;
             $instance = new $class();
-            $models = static::constrain_keys($instance->query(), $instance->key(), array_unique($ids))->get();
+            $query = $instance->query();
+            $query->model->with = $nested;
+
+            // Applied to every related type, so it may only use columns they share.
+            if (! is_null($constraints)) {
+                $query->table->where_nested($constraints);
+            }
+
+            $models = static::constrain_keys($query, $instance->key(), array_unique($ids))->get();
 
             foreach ($models as $model) {
                 $loaded[$type.'_'.$model->get_key()] = $model;

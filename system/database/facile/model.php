@@ -177,6 +177,13 @@ abstract class Model implements \JsonSerializable
     public static $timestamps = true;
 
     /**
+     * The morph map, shared by every model: see morph_map().
+     *
+     * @var array
+     */
+    public static $morph_map = [];
+
+    /**
      * Contains the table name that is associated with the model.
      *
      * @var string
@@ -1536,6 +1543,60 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
+     * Get or extend the morph map: the alias stored in "*_type" columns => model class.
+     * With a map, a model is stored under its alias, so renaming the class does not
+     * break the rows that point at it.
+     *
+     * @param array|null $map
+     *
+     * @return array
+     */
+    public static function morph_map($map = null)
+    {
+        if (is_array($map)) {
+            self::$morph_map = array_merge(self::$morph_map, $map);
+        }
+
+        return self::$morph_map;
+    }
+
+    /**
+     * Get the value stored in a "*_type" column for this model: its alias in the
+     * morph map, or its class name.
+     *
+     * @return string
+     */
+    public function morph_class()
+    {
+        $alias = array_search(get_class($this), self::$morph_map, true);
+        return (false === $alias) ? get_class($this) : (string) $alias;
+    }
+
+    /**
+     * Get the model class a "*_type" value stands for, or NULL. The value comes from
+     * the database, so only a mapped alias or a Facile model class is accepted:
+     * any other class is never loaded nor created.
+     *
+     * @param mixed $type
+     *
+     * @return string|null
+     */
+    public static function morph_resolve($type)
+    {
+        if (! is_string($type) || '' === $type) {
+            return null;
+        }
+
+        $class = isset(self::$morph_map[$type]) ? ltrim((string) self::$morph_map[$type], '\\') : ltrim($type, '\\');
+
+        if (! preg_match('/^[A-Za-z_][A-Za-z0-9_]*(?:\\\\[A-Za-z_][A-Za-z0-9_]*)*$/', $class)) {
+            return null;
+        }
+
+        return (class_exists($class) && is_subclass_of($class, __CLASS__)) ? $class : null;
+    }
+
+    /**
      * Get the query for a polymorphic morph-to relationship.
      *
      * @param string $name
@@ -1548,7 +1609,8 @@ abstract class Model implements \JsonSerializable
     {
         $type = is_null($type) ? $name . '_type' : $type;
         $id = is_null($id) ? $name . '_id' : $id;
-        $model = $this->get_attribute($type);
+        // The type column is data: resolve it to a model class, or to nothing at all.
+        $model = static::morph_resolve($this->get_attribute($type));
         return new Relationships\MorphTo($this, (string) $model, $type, $id);
     }
 
