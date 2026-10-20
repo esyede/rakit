@@ -523,6 +523,11 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Processes and concurrency.** `Process::run()` / `Process::start()` run external
+    commands (escaped argument arrays or shell lines) with working directory,
+    environment, stdin, timeout, streamed output, `running()`, `wait()` and `stop()`.
+    `Concurrency::run([...])` runs closures in forked processes on the CLI with
+    `pcntl`, one after another elsewhere. See `process.md`.
 -   **Storage disks, with S3.** `Storage::disk('s3')` and `Storage::disk('local')`
     share `put`, `put_file`, `get`, `exists`, `size`, `modified`, `files`, `copy`,
     `move`, `delete` and `url`; S3 adds `temporary_url()`. The S3 driver signs with

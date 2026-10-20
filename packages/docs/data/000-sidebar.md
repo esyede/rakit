@@ -41,6 +41,7 @@
 -   [Notifications](/docs/notifications)
 -   [Storage](/docs/storage)
 -   [HTTP Client (Curl)](/docs/curl)
+-   [Processes & Concurrency](/docs/process)
 -   [Localization](/docs/localization)
 -   [WebSocket](/docs/websocket)
 -   [Workers](/docs/workers)

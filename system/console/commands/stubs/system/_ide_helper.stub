@@ -66,6 +66,10 @@ class Command extends System\Console\Commands\Command
 {
 }
 
+class Concurrency extends System\Concurrency
+{
+}
+
 class Config extends System\Config
 {
 }
@@ -188,6 +192,10 @@ class Package extends System\Package
 }
 
 class Paginator extends System\Paginator
+{
+}
+
+class Process extends System\Process
 {
 }
 
