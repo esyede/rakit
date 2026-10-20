@@ -40,6 +40,7 @@ return [
     'Hook' => 'System\Hook',
     'Facile' => 'System\Database\Facile\Model',
     'Faker' => 'System\Foundation\Faker\Factory',
+    'Gate' => 'System\Gate',
     'Hash' => 'System\Hash',
     'Image' => 'System\Image',
     'Input' => 'System\Input',

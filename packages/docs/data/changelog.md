@@ -451,6 +451,11 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Authorization: `Gate` and policies.** `Gate::define()`, `policy()`,
+    `before()`, `after()`, `allows()`, `denies()`, `check()`, `any()`, `none()`,
+    `authorize()` (403) and `for_user()`; the `can:<ability>[,<Model>]` middleware;
+    and the `@can`, `@cannot` and `@canany` Blade directives. Guests only reach
+    callbacks whose user parameter is optional. See `auth/authorization.md`.
 
 **Performance**
 

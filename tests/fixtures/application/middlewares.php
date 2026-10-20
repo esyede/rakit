@@ -35,6 +35,13 @@ Route::middleware('auth', function () {
     }
 });
 
+Route::middleware('can', function ($ability, $model = null) {
+    // 'can:create,Post' passes the class to its policy; 'can:admin' a plain ability.
+    if (Gate::denies($ability, is_null($model) ? [] : [$model])) {
+        return Response::error(403);
+    }
+});
+
 Route::middleware('throttle', function ($limit, $minutes) {
     if (Throttle::exceeded($limit, $minutes)) {
         return Throttle::error();

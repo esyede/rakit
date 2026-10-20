@@ -47,6 +47,7 @@
 
 -   [Authentication Configuration](/docs/auth/config)
 -   [Using Authentication](/docs/auth/usage)
+-   [Authorization](/docs/auth/authorization)
 -   [Encryption](/docs/crypter)
 -   [RSA Encryption](/docs/rsa)
 -   [Hashing](/docs/hash)

@@ -114,6 +114,10 @@ class Faker extends System\Foundation\Faker\Factory
 {
 }
 
+class Gate extends System\Gate
+{
+}
+
 class Hash extends System\Hash
 {
 }

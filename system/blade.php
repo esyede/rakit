@@ -52,6 +52,8 @@ class Blade
         'endguest',
         'auth',
         'endauth',
+        'can',
+        'endcan',
         'include',
         'render_each',
         'render',
@@ -759,6 +761,33 @@ class Blade
     protected static function compile_endauth($value)
     {
         return preg_replace('/(?<!@)@endauth\b/', '<?php endif; ?>', $value);
+    }
+
+    /**
+     * Translate @can, @cannot and @canany.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_can($value)
+    {
+        $value = preg_replace(static::matcher('canany'), '$1<?php if (\System\Gate::any$2): ?>', $value);
+        $value = preg_replace(static::matcher('cannot'), '$1<?php if (\System\Gate::denies$2): ?>', $value);
+
+        return preg_replace(static::matcher('can'), '$1<?php if (\System\Gate::allows$2): ?>', $value);
+    }
+
+    /**
+     * Translate @endcan, @endcannot and @endcanany.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_endcan($value)
+    {
+        return preg_replace('/(?<!@)@end(?:canany|cannot|can)\b/', '<?php endif; ?>', $value);
     }
 
     /**

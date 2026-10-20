@@ -39,6 +39,7 @@ return [
     'Email' => 'System\Email',
     'Facile' => 'System\Database\Facile\Model',
     'Faker' => 'System\Foundation\Faker\Factory',
+    'Gate' => 'System\Gate',
     'Hash' => 'System\Hash',
     'Hook' => 'System\Hook',
     'Image' => 'System\Image',

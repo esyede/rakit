@@ -423,6 +423,8 @@ class is `Blog_Alert_Component` in `packages/blog/components/alert.php`.
 | `@json($data)`                         | Print a value as JSON, safe to embed in `<script>`                  |
 | `@auth` .. `@endauth`                  | Shown only to a logged-in user                                      |
 | `@guest` .. `@endguest`                | Shown only to a guest                                               |
+| `@can('update', $post)` .. `@endcan`   | Shown only when the [ability](/docs/auth/authorization) is granted  |
+| `@cannot(..)` / `@canany([..], ..)`    | Its opposite / any of several abilities; end with `@endcannot` / `@endcanany` |
 | `@error('field')` .. `@enderror`       | Shown only when the field has a validation error                    |
 | `@hassection('name')` .. `@endif`      | Shown only when the section exists                                  |
 | `@sectionmissing('name')` .. `@endif`  | Shown only when the section does not exist                          |

@@ -359,6 +359,7 @@ The application ships with three middlewares:
 |------------|----------------------------------------------------------------------|
 | `csrf`     | Returns a 422 error when a non-safe request carries no valid token   |
 | `auth`     | Returns a 401 error for guests                                       |
+| `can`      | 403 unless the [ability](/docs/auth/authorization) is granted, `can:<ability>[,<Model>]` |
 | `throttle` | Rate limit, `throttle:<max attempts>,<minutes>`, 429 when exceeded   |
 
 > Attaching a middleware that was never registered throws
