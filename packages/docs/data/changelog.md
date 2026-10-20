@@ -379,6 +379,22 @@ Security audit fixes — all severities:
 
 **Fixed**
 
+-   **`mimes` and `image` rules failed on every real upload.** They read the file
+    through `Storage`, whose path checks refuse the system temp folder PHP uploads
+    to, so they threw "Path outside allowed directory". They now read the upload
+    directly, as `mimetypes` does.
+-   **PostgreSQL `insert_get_id()` could return another table's ID.** The
+    `RETURNING` row was discarded for `lastval()`, the last value of any sequence:
+    with a trigger inserting elsewhere, it returned the trigger's ID. The returned
+    row is used now, and the column is quoted.
+-   **A distinct query's `paginate()` total counted duplicates.** It now counts the
+    rows of the query itself.
+-   **MySQL charset in the DSN.** `SET NAMES` alone left the client library on its
+    own charset, which `PDO::quote()` escapes with (unsafe for GBK, Big5, SJIS).
+-   **Boolean connectors, join types and aggregate functions are whitelisted** in
+    the query grammar (`AND`, `OR`, `AND NOT`, `OR NOT`; `INNER`, `LEFT`, `RIGHT`,
+    `CROSS`, `FULL`, the `OUTER` forms; `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`). They
+    went into the SQL as written.
 -   **`morph_to()` created any class a row named.** The `{name}_type` column was
     loaded and instantiated as is, so a row (or a mass-assigned attribute) naming
     any autoloadable class constructed it. Only Facile models are created now,

@@ -940,8 +940,18 @@ class Query
     {
         $sql = $this->grammar->insert_get_id($this, $values, $column);
         // An INSERT has no WHERE: bindings added by scopes must stay out of it.
-        $this->connection->query($sql, array_values($values));
-        $id = $this->connection->pdo()->lastInsertId($sequence);
+        $result = $this->connection->query($sql, array_values($values));
+        $row = (is_array($result) && isset($result[0])) ? $result[0] : null;
+
+        // PostgreSQL returns the row's own key; lastInsertId() would read lastval(),
+        // the last value of any sequence, a trigger's insert elsewhere included.
+        if (is_object($row) && isset($row->{$column})) {
+            $id = $row->{$column};
+        } elseif (is_array($row) && isset($row[$column])) {
+            $id = $row[$column];
+        } else {
+            $id = $this->connection->pdo()->lastInsertId($sequence);
+        }
 
         if (! $id) {
             return null;
@@ -1810,7 +1820,8 @@ class Query
     }
 
     /**
-     * Lock the selected rows. A lock only holds inside a transaction.
+     * Lock the selected rows. A lock only holds inside a transaction. A string is
+     * written into the SQL as is, like raw(): never pass input to it.
      *
      * @param bool|string $value
      *
@@ -2154,7 +2165,9 @@ class Query
         $this->offset = null;
 
         $columns = $this->without_select_aliases($columns);
-        $grouped = (! empty($this->groupings) || ! empty($this->havings));
+        // DISTINCT counts too: COUNT(*) would count the duplicates distinct() removes,
+        // and COUNT(DISTINCT a, b) is MySQL only, so count the rows of the query itself.
+        $grouped = (! empty($this->groupings) || ! empty($this->havings) || $this->distinct);
         $total = $grouped ? $this->count_grouped($columns) : $this->aggregate('COUNT', $columns);
 
         $this->orderings = $orderings;

@@ -561,6 +561,17 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
         $rules['file'] = 'mimes:txt,bmp';
         $this->assertFalse(ValidatorFakeUpload::make($_FILES, $rules)->valid());
+
+        // A real upload sits in the system temp folder, outside the application.
+        $temp = tempnam(sys_get_temp_dir(), 'rakit-upload-');
+        copy(path('storage') . 'test.png', $temp);
+        $_FILES['file']['tmp_name'] = $temp;
+
+        $this->assertTrue(ValidatorFakeUpload::make($_FILES, ['file' => 'mimes:png'])->valid());
+        $this->assertTrue(ValidatorFakeUpload::make($_FILES, ['file' => 'image'])->valid());
+        $this->assertFalse(ValidatorFakeUpload::make($_FILES, ['file' => 'mimes:pdf'])->valid());
+
+        unlink($temp);
     }
 
     /**

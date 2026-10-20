@@ -290,7 +290,7 @@ class DatabaseDriversTest extends \PHPUnit_Framework_TestCase
         $values = ['name' => 'Budi'];
 
         $this->assertEquals(
-            'INSERT INTO "users" ("name") VALUES (?) RETURNING id',
+            'INSERT INTO "users" ("name") VALUES (?) RETURNING "id"',
             $this->grammar('Postgres')->insert_get_id($this->query('Postgres'), $values, 'id')
         );
 

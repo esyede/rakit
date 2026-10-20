@@ -111,13 +111,57 @@ class Grammar extends BaseGrammar
      */
     protected function aggregate(Query $query)
     {
+        $aggregator = strtoupper((string) $query->aggregate['aggregator']);
+
+        // aggregate() is public, so its function name may reach here from anywhere.
+        if (! in_array($aggregator, ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'], true)) {
+            throw new \InvalidArgumentException(sprintf('Invalid aggregate function: %s', $query->aggregate['aggregator']));
+        }
+
         $column = $this->columnize($query->aggregate['columns']);
 
         if ($query->distinct && '*' !== $column) {
             $column = 'DISTINCT '.$column;
         }
 
-        return 'SELECT '.$query->aggregate['aggregator'].'('.$column.') AS '.$this->wrap('aggregate');
+        return 'SELECT '.$aggregator.'('.$column.') AS '.$this->wrap('aggregate');
+    }
+
+    /**
+     * Check a boolean connector: it goes into the SQL as written.
+     *
+     * @param string $connector
+     *
+     * @return string
+     */
+    protected function connector($connector)
+    {
+        $upper = strtoupper(trim(preg_replace('/\s+/', ' ', (string) $connector)));
+
+        if (! in_array($upper, ['AND', 'OR', 'AND NOT', 'OR NOT'], true)) {
+            throw new \InvalidArgumentException(sprintf('Invalid boolean connector: %s', $connector));
+        }
+
+        return $upper;
+    }
+
+    /**
+     * Check a join type: it goes into the SQL as written.
+     *
+     * @param string $type
+     *
+     * @return string
+     */
+    protected function join_type($type)
+    {
+        $upper = strtoupper(trim(preg_replace('/\s+/', ' ', (string) $type)));
+        $types = ['INNER', 'LEFT', 'RIGHT', 'CROSS', 'FULL', 'LEFT OUTER', 'RIGHT OUTER', 'FULL OUTER'];
+
+        if (! in_array($upper, $types, true)) {
+            throw new \InvalidArgumentException(sprintf('Invalid join type: %s', $type));
+        }
+
+        return $upper;
     }
 
     /**
@@ -151,28 +195,28 @@ class Grammar extends BaseGrammar
                 if (! array_key_exists('value', $clause)) {
                     $clauses[] = sprintf(
                         '%s %s %s %s',
-                        $clause['connector'],
+                        $this->connector($clause['connector']),
                         $this->wrap($clause['column1']),
                         $clause['operator'],
                         $this->wrap($clause['column2'])
                     );
                 } elseif (null === $clause['value']) {
                     $not = in_array($clause['operator'], ['!=', '<>'], true) ? 'NOT ' : '';
-                    $clauses[] = $clause['connector'].' '.$this->wrap($clause['column']).' IS '.$not.'NULL';
+                    $clauses[] = $this->connector($clause['connector']).' '.$this->wrap($clause['column']).' IS '.$not.'NULL';
                 } else {
-                    $clauses[] = $clause['connector'].' '.$this->wrap($clause['column']).' '
+                    $clauses[] = $this->connector($clause['connector']).' '.$this->wrap($clause['column']).' '
                         .$clause['operator'].' '.$this->parameter($clause['value']);
                 }
             }
 
             if (0 === count($clauses)) {
-                $sql[] = $join->type . ' JOIN ' . $table;
+                $sql[] = $this->join_type($join->type) . ' JOIN ' . $table;
                 continue;
             }
 
             $clauses[0] = preg_replace('/^(AND|OR) /', '', $clauses[0]);
             $clauses = implode(' ', $clauses);
-            $sql[] = $join->type . ' JOIN ' . $table . ' ON ' . $clauses;
+            $sql[] = $this->join_type($join->type) . ' JOIN ' . $table . ' ON ' . $clauses;
         }
 
         return implode(' ', $sql);
@@ -194,7 +238,7 @@ class Grammar extends BaseGrammar
         $sql = [];
 
         foreach ($query->wheres as $where) {
-            $sql[] = $where['connector'].' '.$this->{$where['type']}($where);
+            $sql[] = $this->connector($where['connector']).' '.$this->{$where['type']}($where);
         }
 
         return 'WHERE '.preg_replace('/AND |OR /i', '', implode(' ', $sql), 1);
@@ -472,7 +516,7 @@ class Grammar extends BaseGrammar
         }
 
         foreach ($query->havings as $having) {
-            $connector = isset($having['connector']) ? $having['connector'] : 'AND';
+            $connector = $this->connector(isset($having['connector']) ? $having['connector'] : 'AND');
 
             if (isset($having['type']) && 'having_raw' === $having['type']) {
                 $sql[] = $connector . ' ' . $having['sql'];

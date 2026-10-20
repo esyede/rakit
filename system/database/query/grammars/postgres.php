@@ -26,7 +26,7 @@ class Postgres extends Grammar
      */
     public function insert_get_id(Query $query, array $values, $column)
     {
-        return $this->insert($query, $values).' RETURNING '.$column;
+        return $this->insert($query, $values).' RETURNING '.$this->wrap($column);
     }
 
     /**

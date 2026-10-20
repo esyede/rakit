@@ -1720,13 +1720,18 @@ class Validator
             return false;
         }
 
-        foreach ($parameters as $extension) {
-            if (Storage::is($extension, $value['tmp_name'])) {
-                return true;
-            }
+        // Read the upload itself: PHP keeps it in the system temp folder, which the
+        // Storage path checks refuse, so going through Storage::is() always threw.
+        $finfo = @finfo_open(FILEINFO_MIME_TYPE);
+        $mime = $finfo ? @finfo_file($finfo, $value['tmp_name']) : false;
+        $finfo && PHP_VERSION_ID < 80100 && @finfo_close($finfo);
+        $pool = \System\Foundation\Http\Upload::$extensions;
+
+        if (! is_string($mime) || ! isset($pool[$mime])) {
+            return false;
         }
 
-        return false;
+        return count(array_intersect($pool[$mime], array_map('strtolower', $parameters))) > 0;
     }
 
     /**
