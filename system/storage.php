@@ -21,6 +21,43 @@ class Storage
     public static $allowed_roots = [];
 
     /**
+     * The resolved disks.
+     *
+     * @var array
+     */
+    public static $disks = [];
+
+    /**
+     * Get a disk from application/config/storage.php: local or S3 (and S3-compatible).
+     *
+     *     Storage::disk('s3')->put('avatars/1.jpg', $contents, ['visibility' => 'public']);
+     *
+     * @param string|null $name the configured default when NULL
+     *
+     * @return \System\Storage\Local|\System\Storage\S3
+     */
+    public static function disk($name = null)
+    {
+        $name = is_null($name) ? Config::get('storage.default', 'local') : $name;
+
+        if (! isset(static::$disks[$name])) {
+            $config = Config::get('storage.disks.'.$name);
+
+            if (! is_array($config) || empty($config['driver'])) {
+                throw new \Exception(sprintf('Undefined storage disk: %s', $name));
+            }
+
+            switch ($config['driver']) {
+                case 'local': static::$disks[$name] = new Storage\Local($config); break;
+                case 's3': static::$disks[$name] = new Storage\S3($config); break;
+                default: throw new \Exception(sprintf('Unsupported storage driver: %s', $config['driver']));
+            }
+        }
+
+        return static::$disks[$name];
+    }
+
+    /**
      * Validate path is inside allowed roots and free of traversal/wrappers.
      *
      * @param string $path

@@ -12,6 +12,7 @@
 -   [Upload File](#upload-file)
 -   [Other Methods](#other-methods)
 -   [Path Restrictions](#path-restrictions)
+-   [Disks (Local & S3)](#disks-local--s3)
 
 <!-- /MarkdownTOC -->
 
@@ -166,3 +167,55 @@ Storage::$allowed_roots[] = '/mnt/shared';
 ```
 
 `Storage::$enforce_containment = false` disables these checks entirely; it exists for testing only.
+
+<a id="disks-local--s3"></a>
+
+## Disks (Local & S3)
+
+A disk is a place to keep files, configured in `application/config/storage.php` and reached with
+`Storage::disk()`. The `local` driver keeps files in a directory; the `s3` driver keeps them in
+Amazon S3 or an S3-compatible service (MinIO, Cloudflare R2, DigitalOcean Spaces, Wasabi). Both
+answer the same calls, so moving uploads to S3 is a config change:
+
+```php
+$disk = Storage::disk('s3');         // Storage::disk() is the 'default' disk
+
+$disk->put('avatars/1.jpg', $contents);
+$disk->put('avatars/1.jpg', $contents, ['visibility' => 'public', 'cache_control' => 'max-age=86400']);
+$disk->put_file('reports/may.pdf', Input::file('report.tmp_name'));
+
+$disk->get('avatars/1.jpg');         // contents, or NULL (second argument) when missing
+$disk->exists('avatars/1.jpg');
+$disk->size('avatars/1.jpg');        // bytes
+$disk->modified('avatars/1.jpg');    // UNIX timestamp
+$disk->files('avatars');             // every file below, as paths
+$disk->copy('a.jpg', 'b.jpg');
+$disk->move('a.jpg', 'c.jpg');
+$disk->delete(['b.jpg', 'c.jpg']);   // a missing file is not an error
+
+$disk->url('avatars/1.jpg');                 // public URL (public objects, or the 'url' CDN)
+$disk->temporary_url('reports/may.pdf', 600); // S3: signed link to a private file, 10 minutes
+```
+
+An S3 disk needs `key`, `secret`, `region` and `bucket`. For an S3-compatible service set its
+`endpoint`, and `path_style => true` for MinIO:
+
+```php
+'s3' => [
+    'driver' => 's3',
+    'key' => 'AKIA...',
+    'secret' => '...',
+    'region' => 'ap-southeast-1',
+    'bucket' => 'my-app',
+    'endpoint' => null,          // 'http://127.0.0.1:9000' for MinIO, 'https://<account>.r2.cloudflarestorage.com' for R2
+    'path_style' => false,
+    'url' => null,               // e.g. 'https://cdn.example.com' for url()
+    'root' => '',                // keep the disk under a prefix, e.g. 'production'
+],
+```
+
+Requests are signed with AWS Signature Version 4 and sent through [Curl](/docs/curl), so no SDK
+is needed and `Curl::fake()` fakes S3 in tests. A failed request throws with S3's error code
+(`AccessDenied`, `SignatureDoesNotMatch`...). Paths containing `..` are refused on both drivers.
+Objects are sent in one request (no multipart upload): fine for uploads, not for files of
+several gigabytes.

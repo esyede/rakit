@@ -523,6 +523,11 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Storage disks, with S3.** `Storage::disk('s3')` and `Storage::disk('local')`
+    share `put`, `put_file`, `get`, `exists`, `size`, `modified`, `files`, `copy`,
+    `move`, `delete` and `url`; S3 adds `temporary_url()`. The S3 driver signs with
+    AWS Signature V4 (no SDK) and works with MinIO, R2, Spaces and Wasabi. Disks are
+    configured in the new `application/config/storage.php`. See `storage.md`.
 -   **Faking HTTP requests.** `Curl::fake([...])` answers requests from URL patterns
     (responses, JSON bodies or closures) without the network, refuses unmatched ones,
     and records them for `Curl::assert_sent()`, `assert_not_sent()`,
