@@ -66,5 +66,15 @@ merged over `application/config/<file>.php`. For example
 > The merge is shallow: a top-level key in the environment file replaces the whole
 > key of the main file.
 
-For web requests the environment is detected from the URL patterns in `paths.php`;
-console commands read the `--env=` option or the `RAKIT_ENV` environment variable.
+For web requests a `RAKIT_ENV` variable set by the web server wins (for example
+`fastcgi_param RAKIT_ENV production;` in nginx or `SetEnv RAKIT_ENV production` in
+Apache). Without it the environment is detected from the URL patterns in `paths.php`,
+but only for clients on a loopback or private network (`127.0.0.1`, `::1`,
+`192.168.*`, `10.*`, ...): the URL is built from the client's `Host` header, so on a
+public server anyone could otherwise pick your `local` config. A pattern equal to the
+server's hostname matches from anywhere.
+
+Console commands read the `--env=` option or the `RAKIT_ENV` environment variable.
+
+> Behind a reverse proxy on the same machine every client appears as `127.0.0.1`.
+> Set `RAKIT_ENV` on the production server so detection never depends on the URL.

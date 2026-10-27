@@ -73,7 +73,8 @@ Request::$foundation = Foundation\Http\Request::createFromGlobals();
 |--------------------------------------------------------------------------
 | Determine Application Environment
 |--------------------------------------------------------------------------
-| From "paths.php" URI mapping, or from the "--env=" option, which wins.
+| CLI: the "--env=" option or RAKIT_ENV, else the hostname. Web: RAKIT_ENV from the
+| server, else the "paths.php" URL patterns (trusted only from private networks).
 */
 
 $environments = isset($environments) ? $environments : [];
@@ -84,10 +85,7 @@ if (Request::cli()) {
         ? Request::detect_env($environments, gethostname())
         : $environment;
 } else {
-    $environment = Request::detect_env(
-        $environments,
-        Request::foundation()->getRootUrl()
-    );
+    $environment = Request::detect_web_env($environments);
 }
 
 /*

@@ -551,6 +551,35 @@ class Request
     }
 
     /**
+     * Detect the environment of a web request.
+     *
+     * RAKIT_ENV set by the server (fastcgi_param, SetEnv, or the process environment)
+     * wins. Otherwise the URL patterns are matched, but only for clients on a loopback
+     * or private network: the URL comes from the client's Host header, so on a public
+     * server anyone could pick "local" and get its config (debugger on, dev routes).
+     * A pattern equal to the server's hostname matches regardless.
+     *
+     * @param array $environments
+     *
+     * @return string|null
+     */
+    public static function detect_web_env(array $environments)
+    {
+        $server = static::foundation()->server;
+        $env = $server->get('RAKIT_ENV') ?: getenv('RAKIT_ENV');
+
+        if (! empty($env)) {
+            return $env;
+        }
+
+        $ip = (string) $server->get('REMOTE_ADDR');
+        $private = false !== filter_var($ip, FILTER_VALIDATE_IP)
+            && false === filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+
+        return static::detect_env($environments, $private ? static::foundation()->getRootUrl() : '');
+    }
+
+    /**
      * Get the route handler of the request.
      *
      * @return object|null

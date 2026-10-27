@@ -585,6 +585,45 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test for Request::detect_web_env().
+     *
+     * @group system
+     */
+    public function testDetectWebEnvTrustsUrlPatternsOnlyFromPrivateClients()
+    {
+        $environments = ['local' => ['http://localhost*', '*.test']];
+
+        $this->setServerVar('HTTP_HOST', 'localhost');
+        $this->setServerVar('REMOTE_ADDR', '127.0.0.1');
+        $this->assertEquals('local', Request::detect_web_env($environments));
+
+        $this->setServerVar('REMOTE_ADDR', '192.168.1.20');
+        $this->assertEquals('local', Request::detect_web_env($environments));
+
+        // A spoofed Host from the internet must not select the local config
+        $this->setServerVar('REMOTE_ADDR', '203.0.113.7');
+        $this->assertNull(Request::detect_web_env($environments));
+        $this->setServerVar('HTTP_HOST', 'evil.test');
+        $this->assertNull(Request::detect_web_env($environments));
+
+        $this->setServerVar('REMOTE_ADDR', '');
+        $this->assertNull(Request::detect_web_env($environments));
+    }
+
+    /**
+     * Test for Request::detect_web_env().
+     *
+     * @group system
+     */
+    public function testDetectWebEnvPrefersServerVariable()
+    {
+        $this->setServerVar('HTTP_HOST', 'localhost');
+        $this->setServerVar('REMOTE_ADDR', '127.0.0.1');
+        $this->setServerVar('RAKIT_ENV', 'production');
+        $this->assertEquals('production', Request::detect_web_env(['local' => ['http://localhost*']]));
+    }
+
+    /**
      * Test for Request::subdomain().
      *
      * @group system
